@@ -1,0 +1,109 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_URL } from '../config';
+
+const AuthContext = createContext();
+
+export function useAuth() {
+    return useContext(AuthContext);
+}
+
+export function AuthProvider({ children }) {
+    const [currentUser, setCurrentUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // API Base URL - uses config that adapts to environment
+    const AUTH_API_URL = `${API_URL}/api/auth`;
+
+    async function signup(email, password, username) {
+        const response = await fetch(`${AUTH_API_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, username })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to sign up');
+
+        localStorage.setItem('token', data.token);
+        setCurrentUser(data.user);
+        return data;
+    }
+
+    async function login(email, password) {
+        const response = await fetch(`${AUTH_API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to login');
+
+        localStorage.setItem('token', data.token);
+        setCurrentUser(data.user);
+        return data;
+    }
+
+    async function loginWithGoogle(credential) {
+        const response = await fetch(`${AUTH_API_URL}/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to login with Google');
+
+        localStorage.setItem('token', data.token);
+        setCurrentUser(data.user);
+        return data;
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        setCurrentUser(null);
+    }
+
+    useEffect(() => {
+        const verifyToken = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${AUTH_API_URL}/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setCurrentUser(data.user);
+                } else {
+                    localStorage.removeItem('token');
+                }
+            } catch (error) {
+                console.error("Auth verification failed", error);
+                localStorage.removeItem('token');
+            }
+            setLoading(false);
+        };
+
+        verifyToken();
+    }, []);
+
+    const value = {
+        currentUser,
+        signup,
+        login,
+        loginWithGoogle,
+        logout
+    };
+
+    return (
+        <AuthContext.Provider value={value}>
+            {!loading && children}
+        </AuthContext.Provider>
+    );
+}

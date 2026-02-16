@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@theme {
+  --color-neonBlue: #00f3ff;
+  --color-neonPurple: #bc13fe;
+  --color-glassBg: rgba(255, 255, 255, 0.03);
+  --color-glassBorder: rgba(255, 255, 255, 0.1);
+  --font-inter: "Inter", "system-ui", "-apple-system", "sans-serif";
+}
+
+:root {
+  color-scheme: dark;
+}
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-white antialiased min-h-screen selection:bg-neonBlue/30;
+    font-family: var(--font-inter);
+  }
+
+  /* Custom scrollbar for premium feel */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-900;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full border-4 border-gray-900 hover:bg-white/20 transition-colors;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+
+  .neon-border {
+    @apply border border-neonBlue;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-neonBlue to-neonPurple text-white font-bold px-8 py-4 rounded-full transition-all duration-300 hover:scale-105 active:scale-95;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+  }
+
+  .btn-glass {
+    @apply px-8 py-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-white font-bold transition-all duration-300 hover:bg-white/10;
+  }
+}
