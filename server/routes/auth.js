@@ -19,7 +19,7 @@ router.post('/register', (req, res) => {
         const stmt = db.prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
         const info = stmt.run(username || '', email, hashedPassword);
 
-        const token = jwt.sign({ id: info.lastInsertRowid, email }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: info.lastInsertRowid, email }, JWT_SECRET, { expiresIn: '1h' });
 
         res.status(201).json({ token, user: { id: info.lastInsertRowid, username, email } });
     } catch (error) {
@@ -47,7 +47,7 @@ router.post('/login', (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '1h' });
 
         res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
     } catch (error) {
@@ -68,7 +68,7 @@ router.get('/me', (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const stmt = db.prepare('SELECT id, username, email FROM users WHERE id = ?');
-        const user = stmt.get(decoded.id);
+        const user = stmt.get(decoded.userId);
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });

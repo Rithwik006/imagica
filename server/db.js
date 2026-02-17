@@ -9,18 +9,30 @@ const db = new Database(dbPath);
 
 // Initialize Database Schema
 const initDb = () => {
-    // Create users table
-    db.exec(`
+  // Create users table
+  db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
+      name TEXT,
+      google_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS images (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      original_url TEXT,
+      processed_url TEXT,
+      processing_type TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    );
   `);
 
-    console.log('Database initialized successfully');
+  console.log('Database initialized successfully');
 };
 
 initDb();

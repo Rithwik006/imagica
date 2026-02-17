@@ -93,12 +93,17 @@ export function AuthProvider({ children }) {
         verifyToken();
     }, []);
 
+    const updateProfile = (userData) => {
+        setCurrentUser(prev => ({ ...prev, ...userData }));
+    };
+
     const value = {
         currentUser,
         signup,
         login,
         loginWithGoogle,
-        logout
+        logout,
+        updateProfile
     };
 
     return (

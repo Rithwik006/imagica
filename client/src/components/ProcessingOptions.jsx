@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Palette, Droplet, Zap, Sun, Contrast, ScanLine, Camera, Undo, Grid3x3, Wand2, Smile } from 'lucide-react';
+import { Sparkles, Palette, Droplet, Zap, Sun, Contrast, ScanLine, Camera, Undo, Grid3x3 } from 'lucide-react';
 
 const processingOptions = [
     {
@@ -94,51 +94,51 @@ const processingOptions = [
         defaultIntensity: 10,
         min: 5,
         max: 30
-    },
-    {
-        id: 'anime',
-        name: 'Anime Style',
-        icon: Wand2,
-        description: 'Japanese anime art',
-        color: 'from-pink-500 to-violet-600',
-        hasIntensity: false,
-        isAI: true
-    },
-    {
-        id: 'cartoon',
-        name: 'Cartoon',
-        icon: Smile,
-        description: 'Fun cartoon effect',
-        color: 'from-orange-500 to-red-600',
-        hasIntensity: false,
-        isAI: true
     }
 ];
 
 const ProcessingOptions = ({ onSelect, selectedOption, intensity, onIntensityChange }) => {
     const [hoveredOption, setHoveredOption] = useState(null);
 
+    // selectedOption is now an array
+    const selectedOptions = Array.isArray(selectedOption) ? selectedOption : [selectedOption];
+
     const handleSelect = (option) => {
-        onSelect(option.id);
+        if (selectedOptions.includes(option.id)) {
+            // Remove if already selected, but prevent empty selection
+            if (selectedOptions.length > 1) {
+                onSelect(selectedOptions.filter(id => id !== option.id));
+            }
+        } else {
+            // Add to selection
+            onSelect([...selectedOptions, option.id]);
+        }
     };
 
-    const selectedOptionData = processingOptions.find(opt => opt.id === selectedOption);
+    // For intensity slider, we show it for the last selected option that has intensity
+    const lastSelectedWithIntensity = [...selectedOptions].reverse().find(id => {
+        const opt = processingOptions.find(p => p.id === id);
+        return opt && opt.hasIntensity;
+    });
+
+    const activeIntensityOption = processingOptions.find(opt => opt.id === lastSelectedWithIntensity);
 
     return (
         <div className="space-y-6">
             <div>
                 <h3 className="text-2xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple">
-                    Choose Your Effect
+                    Choose Your Effects
                 </h3>
-                <p className="text-gray-400">Select a processing filter to apply to your image</p>
+                <p className="text-gray-400">Select multiple filters to layer effects (applied in order of selection)</p>
             </div>
 
             {/* Processing Options Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {processingOptions.map((option, index) => {
                     const Icon = option.icon;
-                    const isSelected = selectedOption === option.id;
+                    const isSelected = selectedOptions.includes(option.id);
                     const isHovered = hoveredOption === option.id;
+                    const selectionOrder = selectedOptions.indexOf(option.id) + 1;
 
                     return (
                         <motion.div
@@ -175,11 +175,6 @@ const ProcessingOptions = ({ onSelect, selectedOption, intensity, onIntensityCha
                                         {option.name}
                                     </h4>
                                     <p className="text-xs text-gray-400 mt-1">{option.description}</p>
-                                    {option.isAI && (
-                                        <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-bold bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full">
-                                            AI
-                                        </span>
-                                    )}
                                 </div>
 
                                 {/* Selection Indicator */}
@@ -187,8 +182,10 @@ const ProcessingOptions = ({ onSelect, selectedOption, intensity, onIntensityCha
                                     <motion.div
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
-                                        className="absolute top-2 right-2 w-3 h-3 bg-neonBlue rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)]"
-                                    />
+                                        className="absolute top-2 right-2 w-5 h-5 bg-neonBlue rounded-full shadow-[0_0_10px_rgba(0,243,255,0.8)] flex items-center justify-center text-[10px] font-bold text-black"
+                                    >
+                                        {selectionOrder}
+                                    </motion.div>
                                 )}
                             </div>
                         </motion.div>
@@ -197,29 +194,29 @@ const ProcessingOptions = ({ onSelect, selectedOption, intensity, onIntensityCha
             </div>
 
             {/* Intensity Slider for Selected Option */}
-            {selectedOptionData?.hasIntensity && (
+            {activeIntensityOption && (
                 <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     className="glass p-6 rounded-2xl"
                 >
                     <div className="flex items-center justify-between mb-4">
-                        <h4 className="font-semibold text-white">Adjust Intensity</h4>
+                        <h4 className="font-semibold text-white">Adjust Intensity for {activeIntensityOption.name}</h4>
                         <span className="text-neonBlue font-bold text-lg">{intensity}</span>
                     </div>
 
                     <div className="relative">
                         <input
                             type="range"
-                            min={selectedOptionData.min}
-                            max={selectedOptionData.max}
+                            min={activeIntensityOption.min}
+                            max={activeIntensityOption.max}
                             value={intensity}
                             onChange={(e) => onIntensityChange(parseInt(e.target.value))}
                             className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-neonBlue slider"
                         />
                         <div className="flex justify-between text-xs text-gray-500 mt-2">
-                            <span>Min ({selectedOptionData.min})</span>
-                            <span>Max ({selectedOptionData.max})</span>
+                            <span>Min ({activeIntensityOption.min})</span>
+                            <span>Max ({activeIntensityOption.max})</span>
                         </div>
                     </div>
 

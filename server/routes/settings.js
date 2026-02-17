@@ -98,11 +98,11 @@ router.put('/password', authenticateToken, async (req, res) => {
 router.get('/stats', authenticateToken, (req, res) => {
     try {
         const user = db.prepare('SELECT created_at FROM users WHERE id = ?').get(req.user.userId);
+        const imageCount = db.prepare('SELECT COUNT(*) as count FROM images WHERE user_id = ?').get(req.user.userId);
 
-        // Placeholder statistics - extend this with real data later
         res.json({
-            storageUsed: '0 MB',
-            totalProjects: 0,
+            storageUsed: '0 MB', // Placeholder for now
+            totalImages: imageCount.count,
             credits: 'Free Tier',
             accountCreated: user.created_at
         });

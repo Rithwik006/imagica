@@ -43,26 +43,28 @@ const Navbar = () => {
                         ))}
                     </div>
 
-                    {/* Auth Buttons */}
-                    <div className="hidden md:flex items-center gap-4">
-                        <Link to="/login" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">
-                            Login
-                        </Link>
-                        <Link
-                            to="/register"
-                            className="px-5 py-2 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300 transform hover:scale-105"
-                        >
-                            Get Started
-                        </Link>
-                    </div>
+                    <div className="flex items-center gap-4">
+                        {/* Auth Buttons */}
+                        <div className="hidden md:flex items-center gap-4">
+                            <Link to="/login" className="text-gray-300 hover:text-white transition-colors text-sm font-medium">
+                                Login
+                            </Link>
+                            <Link
+                                to="/register"
+                                className="px-5 py-2 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-semibold text-sm hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300 transform hover:scale-105"
+                            >
+                                Get Started
+                            </Link>
+                        </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden text-gray-300 hover:text-white"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        {isOpen ? <X /> : <Menu />}
-                    </button>
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="md:hidden text-gray-300 hover:text-white"
+                            onClick={() => setIsOpen(!isOpen)}
+                        >
+                            {isOpen ? <X /> : <Menu />}
+                        </button>
+                    </div>
                 </div>
             </div>
 

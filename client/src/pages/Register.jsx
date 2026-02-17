@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import { Loader2 } from 'lucide-react';
 
 const Register = () => {
@@ -10,7 +11,7 @@ const Register = () => {
     const [username, setUsername] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { signup } = useAuth();
+    const { signup, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
@@ -99,6 +100,38 @@ const Register = () => {
                         {loading ? <Loader2 className="animate-spin" /> : 'Sign Up'}
                     </button>
                 </form>
+
+                {/* Divider */}
+                <div className="my-6 flex items-center">
+                    <div className="flex-1 border-t border-white/10"></div>
+                    <span className="px-4 text-sm text-gray-400">or continue with</span>
+                    <div className="flex-1 border-t border-white/10"></div>
+                </div>
+
+                {/* Google Login */}
+                <div className="flex justify-center">
+                    <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                            try {
+                                setError('');
+                                setLoading(true);
+                                await loginWithGoogle(credentialResponse.credential);
+                                navigate('/dashboard');
+                            } catch (err) {
+                                setError('Google signup failed: ' + err.message);
+                            }
+                            setLoading(false);
+                        }}
+                        onError={() => {
+                            setError('Google signup failed');
+                            setLoading(false);
+                        }}
+                        size="large"
+                        shape="pill"
+                        width="100%"
+                        text="signup_with"
+                    />
+                </div>
 
                 <div className="mt-6 text-center text-sm text-gray-400">
                     Already have an account?{' '}

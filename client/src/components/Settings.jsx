@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
 
 const Settings = () => {
-    const { currentUser } = useAuth();
+    const { currentUser, updateProfile } = useAuth();
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -92,11 +92,13 @@ const Settings = () => {
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Profile updated successfully!' });
                 setProfile({ ...profile, name: profileName });
+                updateProfile({ name: profileName });
             } else {
                 setMessage({ type: 'error', text: data.error || 'Failed to update profile' });
             }
         } catch (error) {
-            setMessage({ type: 'error', text: 'Failed to update profile' });
+            console.error('Profile update error:', error);
+            setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' });
         } finally {
             setLoading(false);
         }
