@@ -46,7 +46,9 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: 'Invalid token' });
+    // Standardize user object to use userId for all legacy and new routes
     req.user = user;
+    if (user.id && !user.userId) user.userId = user.id;
     next();
   });
 };
