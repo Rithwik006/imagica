@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Image, Star, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Image, Globe, Grid, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -8,7 +8,8 @@ const Sidebar = () => {
     const links = [
         { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Generate', path: '/dashboard/generate', icon: Image },
-        { name: 'Saved', path: '/dashboard/saved', icon: Star },
+        { name: 'Your Posts', path: '/dashboard/posts', icon: Grid },
+        { name: 'Public Feed', path: '/dashboard/public', icon: Globe },
         { name: 'Settings', path: '/dashboard/settings', icon: Settings },
     ];
 
@@ -54,7 +55,7 @@ const Sidebar = () => {
                         {currentUser?.name ? currentUser.name[0].toUpperCase() : (currentUser?.email ? currentUser.email[0].toUpperCase() : 'U')}
                     </div>
                     <div className="overflow-hidden">
-                        <p className="text-white text-sm font-medium truncate w-32">{currentUser?.name || 'User'}</p>
+                        <p className="text-white text-sm font-medium truncate w-32">{currentUser?.name || currentUser?.username || 'User'}</p>
                         <p className="text-xs text-gray-400 truncate w-32">{currentUser?.email}</p>
                     </div>
                 </div>

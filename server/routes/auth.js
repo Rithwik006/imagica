@@ -80,7 +80,7 @@ router.get('/me', (req, res) => {
     }
 });
 
-// Google OAuth Login Route
+// Google OAuth Login Route (legacy - kept for backwards compat)
 router.post('/google', async (req, res) => {
     const { credential } = req.body;
 
@@ -92,7 +92,6 @@ router.post('/google', async (req, res) => {
         const { OAuth2Client } = require('google-auth-library');
         const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-        // Verify Google token
         const ticket = await client.verifyIdToken({
             idToken: credential,
             audience: process.env.GOOGLE_CLIENT_ID,
@@ -102,31 +101,92 @@ router.post('/google', async (req, res) => {
         const email = payload.email;
         const name = payload.name || '';
 
-        // Check if user exists
         let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
 
         if (!user) {
-            // Create new user if doesn't exist
             const stmt = db.prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
-            const info = stmt.run(name, email, 'google-oauth'); // Placeholder password for OAuth users
+            const info = stmt.run(name, email, 'google-oauth');
             user = { id: info.lastInsertRowid, name, email };
         }
 
-        // Generate JWT token
         const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 
-        res.json({
-            token,
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email
-            }
-        });
+        res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
         console.error('Google OAuth error:', error);
         res.status(401).json({ error: 'Invalid Google token' });
     }
 });
 
+const admin = require('firebase-admin');
+
+// Initialize Firebase Admin if not already initialized
+if (!admin.apps.length) {
+    admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID || 'imagica-3a5d6'
+    });
+}
+
+// Firebase Google Sign-In Route
+router.post('/google-firebase', async (req, res) => {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+        return res.status(400).json({ error: 'Firebase ID token is required' });
+    }
+
+    try {
+        // Verify the Firebase ID token using the Firebase Admin SDK
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+
+        if (!decodedToken || !decodedToken.email) {
+            return res.status(401).json({ error: 'Invalid Firebase token' });
+        }
+
+        const email = decodedToken.email;
+        const name = decodedToken.name || decodedToken.email.split('@')[0];
+        const picture = decodedToken.picture || null;
+
+        // Find or create user in SQLite
+        let user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+
+        if (!user) {
+            const stmt = db.prepare(
+                'INSERT INTO users (name, username, email, password) VALUES (?, ?, ?, ?)'
+            );
+            const info = stmt.run(name, name, email, 'firebase-google');
+            user = { id: info.lastInsertRowid, name, email };
+        } else if (!user.name && name) {
+            // Update name if it was missing
+            db.prepare('UPDATE users SET name = ? WHERE id = ?').run(name, user.id);
+            user.name = name;
+        }
+
+        // Issue our own JWT
+        const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+
+        res.json({
+            token,
+            user: {
+                id: user.id,
+                name: user.name || name,
+                email: user.email,
+                username: user.username
+            }
+        });
+    } catch (error) {
+        console.error('Firebase Google auth error details:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+        res.status(401).json({
+            error: 'Failed to authenticate with Google',
+            details: error.message,
+            code: error.code
+        });
+    }
+});
+
 module.exports = router;
+

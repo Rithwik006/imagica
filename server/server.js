@@ -1,6 +1,8 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -8,8 +10,6 @@ const authRoutes = require('./routes/auth'); // Import auth routes
 const settingsRoutes = require('./routes/settings'); // Import settings routes
 const db = require('./db');
 const jwt = require('jsonwebtoken');
-
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,11 +42,19 @@ const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) return res.status(401).json({ error: 'Access token required' });
+  if (!token) {
+    console.log('[Auth] No token found in header');
+    return res.status(401).json({ error: 'Access token required' });
+  }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: 'Invalid token' });
-    // Standardize user object to use userId for all legacy and new routes
+  const secret = process.env.JWT_SECRET || 'your-secret-key'; // Match fallback in auth.js
+
+  jwt.verify(token, secret, (err, user) => {
+    if (err) {
+      console.error('[Auth] Token verification failed:', err.message);
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+    // Standardize user object
     req.user = user;
     if (user.id && !user.userId) user.userId = user.id;
     next();
@@ -135,7 +143,7 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
 // Save Image Endpoint
 app.post('/api/save', authenticateToken, (req, res) => {
-  const { originalUrl, processedUrl, processingType } = req.body;
+  const { originalUrl, processedUrl, processingType, isPublic } = req.body;
   const userId = req.user.userId;
 
   if (!originalUrl || !processedUrl) {
@@ -143,17 +151,24 @@ app.post('/api/save', authenticateToken, (req, res) => {
   }
 
   try {
-    const stmt = db.prepare('INSERT INTO images (user_id, original_url, processed_url, processing_type) VALUES (?, ?, ?, ?)');
-    const result = stmt.run(userId, originalUrl, processedUrl, processingType || 'original');
+    const stmt = db.prepare('INSERT INTO images (user_id, original_url, processed_url, processing_type, is_public) VALUES (?, ?, ?, ?, ?)');
+    const result = stmt.run(userId, originalUrl, processedUrl, processingType || 'original', isPublic ? 1 : 0);
 
     res.json({ message: 'Image saved successfully', id: result.lastInsertRowid });
   } catch (error) {
-    console.error('Error saving image:', error);
-    res.status(500).json({ error: 'Failed to save image' });
+    console.error('Error saving image details:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      userId,
+      originalUrl,
+      processedUrl
+    });
+    res.status(500).json({ error: 'Failed to save image', details: error.message });
   }
 });
 
-// Get User Saved Images Endpoint
+// Get User Saved Images Endpoint (kept for backwards compat)
 app.get('/api/images', authenticateToken, (req, res) => {
   const userId = req.user.userId;
   try {
@@ -163,6 +178,52 @@ app.get('/api/images', authenticateToken, (req, res) => {
   } catch (error) {
     console.error('Error fetching images:', error);
     res.status(500).json({ error: 'Failed to fetch images' });
+  }
+});
+
+// Get current user's posts
+app.get('/api/posts/mine', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  try {
+    const images = db.prepare('SELECT * FROM images WHERE user_id = ? ORDER BY created_at DESC').all(userId);
+    res.json(images);
+  } catch (error) {
+    console.error('Error fetching user posts:', error);
+    res.status(500).json({ error: 'Failed to fetch posts' });
+  }
+});
+
+// Toggle publish/unpublish an image
+app.post('/api/posts/publish/:id', authenticateToken, (req, res) => {
+  const userId = req.user.userId;
+  const imageId = req.params.id;
+  try {
+    const image = db.prepare('SELECT * FROM images WHERE id = ? AND user_id = ?').get(imageId, userId);
+    if (!image) return res.status(404).json({ error: 'Image not found or not yours' });
+    const newFlag = image.is_public ? 0 : 1;
+    db.prepare('UPDATE images SET is_public = ? WHERE id = ?').run(newFlag, imageId);
+    res.json({ message: newFlag ? 'Published to public feed' : 'Unpublished', is_public: newFlag });
+  } catch (error) {
+    console.error('Error toggling publish:', error);
+    res.status(500).json({ error: 'Failed to toggle publish' });
+  }
+});
+
+// Get all public posts (feed) - no auth required
+app.get('/api/posts/public', (req, res) => {
+  try {
+    const posts = db.prepare(`
+      SELECT images.id, images.processed_url, images.processing_type, images.created_at,
+             users.name, users.email, users.username
+      FROM images
+      JOIN users ON images.user_id = users.id
+      WHERE images.is_public = 1
+      ORDER BY images.created_at DESC
+    `).all();
+    res.json(posts);
+  } catch (error) {
+    console.error('Error fetching public feed:', error);
+    res.status(500).json({ error: 'Failed to fetch public feed' });
   }
 });
 

@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './pages/LandingPage';
@@ -14,27 +13,23 @@ const PrivateRoute = ({ children }) => {
 };
 
 function App() {
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
-
   return (
-    <GoogleOAuthProvider clientId={googleClientId}>
-      <ThemeProvider>
-        <AuthProvider>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Layout><LandingPage /></Layout>} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/dashboard/*" element={
-                <PrivateRoute>
-                  <Layout><Dashboard /></Layout>
-                </PrivateRoute>
-              } />
-            </Routes>
-          </Router>
-        </AuthProvider>
-      </ThemeProvider>
-    </GoogleOAuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Layout><LandingPage /></Layout>} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard/*" element={
+              <PrivateRoute>
+                <Layout><Dashboard /></Layout>
+              </PrivateRoute>
+            } />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

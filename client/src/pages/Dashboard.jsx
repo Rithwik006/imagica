@@ -6,7 +6,7 @@ import ProcessingOptions from '../components/ProcessingOptions';
 import Settings from '../components/Settings';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Zap, Layers, Share2, Shield, Smartphone } from 'lucide-react';
+import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff } from 'lucide-react';
 
 const DashboardOverview = () => {
     const { currentUser } = useAuth();
@@ -25,7 +25,7 @@ const DashboardOverview = () => {
                     const data = await response.json();
                     setStats({
                         totalProjects: data.totalImages || 0,
-                        storageUsed: '0 MB', // Placeholder as backend might not calculate size yet
+                        storageUsed: '0 MB',
                         credits: 'Free Tier'
                     });
                 }
@@ -104,7 +104,7 @@ const DashboardOverview = () => {
 const Generate = () => {
     const [result, setResult] = React.useState(null);
     const [selectedFile, setSelectedFile] = React.useState(null);
-    const [selectedProcessing, setSelectedProcessing] = React.useState(['grayscale']); // Array for multiple filters
+    const [selectedProcessing, setSelectedProcessing] = React.useState(['grayscale']);
     const [intensity, setIntensity] = React.useState(5);
     const [showOptions, setShowOptions] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
@@ -120,8 +120,6 @@ const Generate = () => {
 
         const formData = new FormData();
         formData.append('image', file);
-        // Send processing types as JSON string or individual fields depending on backend expectation
-        // Here we send as JSON string to handle array
         formData.append('processingType', JSON.stringify(selectedProcessing));
         formData.append('intensity', intensity);
 
@@ -138,8 +136,6 @@ const Generate = () => {
             setShowOptions(false);
         } catch (error) {
             console.error('Error uploading image:', error);
-            // alert('Failed to process image. Make sure the server is running on port 5000.');
-            // Better error handling UI could be added
         }
     };
 
@@ -170,14 +166,14 @@ const Generate = () => {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                alert('Project saved successfully! View it in the "Saved" tab.');
+                alert('Project saved! View it in "Your Posts" tab.');
             } else {
-                alert('Failed to save project.');
+                const data = await response.json();
+                alert(`Failed to save project: ${data.details || data.error || 'Unknown error'}`);
             }
         } catch (e) {
             console.error(e);
-            alert('Error saving project.');
+            alert(`Error saving project: ${e.message}`);
         } finally {
             setIsSaving(false);
         }
@@ -249,7 +245,7 @@ const Generate = () => {
                             disabled={isSaving}
                             className="px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors font-semibold disabled:opacity-50"
                         >
-                            {isSaving ? 'Saving...' : 'Save Project'}
+                            {isSaving ? 'Saving...' : 'Save to Posts'}
                         </button>
                         <a
                             href={result.processedUrl}
@@ -267,46 +263,74 @@ const Generate = () => {
     );
 };
 
-const Saved = () => {
+// ─── YOUR POSTS ─────────────────────────────────────────────────────────────
+const YourPosts = () => {
     const [images, setImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
+    const [toggling, setToggling] = React.useState(null);
 
-    React.useEffect(() => {
-        const fetchImages = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(`${API_URL}/api/images`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setImages(data);
-                }
-            } catch (error) {
-                console.error('Error fetching saved images:', error);
-            } finally {
-                setLoading(false);
+    const fetchPosts = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/api/posts/mine`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setImages(data);
             }
-        };
+        } catch (error) {
+            console.error('Error fetching posts:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        fetchImages();
-    }, []);
+    React.useEffect(() => { fetchPosts(); }, []);
+
+    const handleTogglePublish = async (id) => {
+        setToggling(id);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/api/posts/publish/${id}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setImages(prev => prev.map(img =>
+                    img.id === id ? { ...img, is_public: data.is_public } : img
+                ));
+            }
+        } catch (error) {
+            console.error('Error toggling publish:', error);
+        } finally {
+            setToggling(null);
+        }
+    };
 
     if (loading) {
-        return <div className="text-white text-center mt-10">Loading saved projects...</div>;
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-2 border-neonBlue border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
     }
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple">
-                Saved Projects
-            </h2>
+            <div>
+                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple">
+                    Your Posts
+                </h2>
+                <p className="text-gray-400 mt-1">Manage your saved images and publish them to the public feed.</p>
+            </div>
 
             {images.length === 0 ? (
-                <div className="glass p-8 rounded-2xl text-center text-gray-400">
-                    No saved projects found. Start creating!
+                <div className="glass p-12 rounded-2xl text-center">
+                    <div className="text-6xl mb-4">🖼️</div>
+                    <p className="text-gray-400 text-lg">No posts yet.</p>
+                    <p className="text-gray-500 text-sm mt-2">Process an image and save it to see it here.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -318,29 +342,116 @@ const Saved = () => {
                                     alt="Processed"
                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                                    <a
-                                        href={img.processed_url}
-                                        download={`saved-${img.id}.png`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="p-2 bg-white/20 rounded-full hover:bg-white/40 transition-colors"
-                                        title="Download"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                    </a>
-                                </div>
+                                {img.is_public ? (
+                                    <div className="absolute top-2 right-2 px-2 py-1 bg-neonBlue/80 rounded-full text-xs text-white font-semibold flex items-center gap-1">
+                                        <Globe className="w-3 h-3" /> Public
+                                    </div>
+                                ) : (
+                                    <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 rounded-full text-xs text-gray-300 font-semibold flex items-center gap-1">
+                                        <EyeOff className="w-3 h-3" /> Private
+                                    </div>
+                                )}
                             </div>
-                            <div className="flex justify-between items-center text-sm">
+                            <div className="flex justify-between items-center">
                                 <div className="flex flex-col">
-                                    <span className="text-neonBlue font-medium capitalize truncate max-w-[150px]" title={img.processing_type}>
+                                    <span className="text-neonBlue font-medium capitalize truncate max-w-[130px] text-sm" title={img.processing_type}>
                                         {img.processing_type}
                                     </span>
                                     <span className="text-gray-500 text-xs">{new Date(img.created_at).toLocaleDateString()}</span>
                                 </div>
+                                <button
+                                    onClick={() => handleTogglePublish(img.id)}
+                                    disabled={toggling === img.id}
+                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 disabled:opacity-50 ${img.is_public
+                                        ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30 border border-red-500/40'
+                                        : 'bg-neonBlue/20 text-neonBlue hover:bg-neonBlue/30 border border-neonBlue/40'
+                                        }`}
+                                >
+                                    {toggling === img.id ? '...' : img.is_public ? 'Unpublish' : 'Publish'}
+                                </button>
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+        </motion.div>
+    );
+};
+
+// ─── PUBLIC FEED ─────────────────────────────────────────────────────────────
+const PublicFeed = () => {
+    const [posts, setPosts] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchPublic = async () => {
+            try {
+                const response = await fetch(`${API_URL}/api/posts/public`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setPosts(data);
+                }
+            } catch (error) {
+                console.error('Error fetching public feed:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPublic();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-2 border-neonBlue border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
+    return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+            <div>
+                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple flex items-center gap-3">
+                    <Globe className="w-8 h-8 text-neonBlue" /> Public Feed
+                </h2>
+                <p className="text-gray-400 mt-1">Discover AI-processed images shared by the community.</p>
+            </div>
+
+            {posts.length === 0 ? (
+                <div className="glass p-12 rounded-2xl text-center">
+                    <div className="text-6xl mb-4">🌐</div>
+                    <p className="text-gray-400 text-lg">No public posts yet.</p>
+                    <p className="text-gray-500 text-sm mt-2">Be the first! Go to "Your Posts" and hit Publish.</p>
+                </div>
+            ) : (
+                <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                    {posts.map((post) => {
+                        const displayName = post.name || post.username || post.email?.split('@')[0] || 'Anonymous';
+                        const avatar = displayName[0].toUpperCase();
+                        return (
+                            <div key={post.id} className="glass rounded-2xl overflow-hidden group hover:bg-white/5 transition-all duration-300 break-inside-avoid mb-6">
+                                <div className="relative overflow-hidden">
+                                    <img
+                                        src={post.processed_url}
+                                        alt={post.processing_type}
+                                        className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                </div>
+                                <div className="p-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-neonBlue to-neonPurple flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                                            {avatar}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className="text-white text-sm font-semibold truncate">{displayName}</p>
+                                            <p className="text-gray-500 text-xs capitalize">{post.processing_type} · {new Date(post.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </motion.div>
@@ -353,7 +464,8 @@ const Dashboard = () => {
             <Routes>
                 <Route index element={<DashboardOverview />} />
                 <Route path="generate" element={<Generate />} />
-                <Route path="saved" element={<Saved />} />
+                <Route path="posts" element={<YourPosts />} />
+                <Route path="public" element={<PublicFeed />} />
                 <Route path="settings" element={<Settings />} />
             </Routes>
         </div>

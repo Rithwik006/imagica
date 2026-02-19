@@ -27,10 +27,21 @@ const initDb = () => {
       original_url TEXT,
       processed_url TEXT,
       processing_type TEXT,
+      is_public INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY(user_id) REFERENCES users(id)
     );
   `);
+
+  // Safely add columns to existing databases
+  try { db.exec(`ALTER TABLE images ADD COLUMN user_id INTEGER`); } catch (e) { }
+  try { db.exec(`ALTER TABLE images ADD COLUMN original_url TEXT`); } catch (e) { }
+  try { db.exec(`ALTER TABLE images ADD COLUMN processed_url TEXT`); } catch (e) { }
+  try { db.exec(`ALTER TABLE images ADD COLUMN processing_type TEXT`); } catch (e) { }
+  try { db.exec(`ALTER TABLE images ADD COLUMN is_public INTEGER DEFAULT 0`); } catch (e) { }
+
+  try { db.exec(`ALTER TABLE users ADD COLUMN name TEXT`); } catch (e) { }
+  try { db.exec(`ALTER TABLE users ADD COLUMN username TEXT`); } catch (e) { }
 
   console.log('Database initialized successfully');
 };

@@ -9,9 +9,9 @@ const Settings = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    // Profile state
+    // Profile state — initialize name from currentUser immediately, not just after fetch
     const [profile, setProfile] = useState({ name: '', email: '' });
-    const [profileName, setProfileName] = useState('');
+    const [profileName, setProfileName] = useState(currentUser?.name || '');
 
     // Password state
     const [passwords, setPasswords] = useState({
@@ -91,8 +91,9 @@ const Settings = () => {
 
             if (response.ok) {
                 setMessage({ type: 'success', text: 'Profile updated successfully!' });
-                setProfile({ ...profile, name: profileName });
-                updateProfile({ name: profileName });
+                const newName = profileName.trim();
+                setProfile(prev => ({ ...prev, name: newName }));
+                updateProfile({ name: newName });
             } else {
                 setMessage({ type: 'error', text: data.error || 'Failed to update profile' });
             }
@@ -250,7 +251,7 @@ const Settings = () => {
 
                     <button
                         type="submit"
-                        disabled={loading || profileName === profile.name}
+                        disabled={loading || profileName.trim() === profile.name}
                         className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-bold hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Save className="w-4 h-4" />
