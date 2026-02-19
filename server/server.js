@@ -72,8 +72,11 @@ app.use(express.json());
 // Serve uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// Serve static files from the React app if the directory exists
+const clientDistPath = path.join(__dirname, '../client/dist');
+if (fs.existsSync(clientDistPath)) {
+  app.use(express.static(clientDistPath));
+}
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -234,7 +237,12 @@ app.get('/', (req, res) => {
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  const indexFile = path.join(__dirname, '../client/dist/index.html');
+  if (fs.existsSync(indexFile)) {
+    res.sendFile(indexFile);
+  } else {
+    res.status(404).json({ error: 'Route not found' });
+  }
 });
 
 app.listen(PORT, () => {

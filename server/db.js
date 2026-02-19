@@ -4,7 +4,12 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
 // Ensure database directory exists
-const dbPath = path.resolve(__dirname, 'database.sqlite');
+const dbPath = process.env.DATABASE_PATH || path.resolve(__dirname, 'database.sqlite');
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
 const db = new Database(dbPath);
 
 // Initialize Database Schema
