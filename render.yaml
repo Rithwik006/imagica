@@ -4,10 +4,6 @@ services:
     env: node
     buildCommand: cd server && npm install
     startCommand: cd server && node server.js
-    disk:
-      name: sqlite-data
-      mountPath: /opt/render/project/src/server/data
-      sizeGB: 1
     envVars:
       - key: PORT
         value: 10000
@@ -16,4 +12,4 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: DATABASE_PATH
-        value: /opt/render/project/src/server/data/database.sqlite
+        value: ./database.sqlite
