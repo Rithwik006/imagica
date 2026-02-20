@@ -22,20 +22,15 @@ async function convertToAnime(imagePath, strength = 0.55) {
         const base64Image = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
 
         console.log('[AnimeService] Starting conversion. Strength:', strength);
-        console.log('[AnimeService] Using model: stability-ai/sdxl');
+        console.log('[AnimeService] Using model: 412392713/animeganv2');
 
-        // Using a more recent stable SDXL version
+        // Using AnimeGANv2 which is highly reliable for photo-to-anime
         const output = await replicate.run(
-            "stability-ai/sdxl:77fd0e4e5ee6162a04684b5c71a3372c3d04d80a379116e0339d1b032d8a5628",
+            "412392713/animeganv2:bd2cf1a84e18ad44c3d16f567092183fa40ae75715d3f2b63480b65257e4baab",
             {
                 input: {
                     image: base64Image,
-                    prompt: "masterpiece, anime style, high quality, detailed anime eyes, vibrant colors, cinematic lighting, smooth lineart",
-                    negative_prompt: "realistic, photograph, blurry, low quality, distorted, watermark",
-                    prompt_strength: strength,
-                    num_outputs: 1,
-                    guidance_scale: 7.5,
-                    num_inference_steps: 30
+                    model_name: "Webtoon" // Other options: Shinkai, Hayao, Hosoda
                 }
             }
         );
