@@ -106,8 +106,11 @@ const Generate = () => {
     const [selectedFile, setSelectedFile] = React.useState(null);
     const [selectedProcessing, setSelectedProcessing] = React.useState(['grayscale']);
     const [intensity, setIntensity] = React.useState(5);
+    const [strength, setStrength] = React.useState(0.55); // For AI Anime
     const [showOptions, setShowOptions] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [isConverting, setIsConverting] = React.useState(false);
+    const [mode, setMode] = React.useState('classic'); // 'classic' or 'ai'
 
     const handleFileSelect = (file) => {
         setSelectedFile(file);
@@ -136,6 +139,41 @@ const Generate = () => {
             setShowOptions(false);
         } catch (error) {
             console.error('Error uploading image:', error);
+            alert('Processing failed. Please try again.');
+        }
+    };
+
+    const handleConvertToAnime = async (file) => {
+        if (!file) return;
+        setIsConverting(true);
+
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('strength', strength);
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/api/anime`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.details || 'Conversion failed');
+            }
+
+            const data = await response.json();
+            setResult(data);
+            setShowOptions(false);
+        } catch (error) {
+            console.error('Error converting to anime:', error);
+            alert(`Anime conversion failed: ${error.message}`);
+        } finally {
+            setIsConverting(false);
         }
     };
 
@@ -145,6 +183,8 @@ const Generate = () => {
         setShowOptions(false);
         setSelectedProcessing(['grayscale']);
         setIntensity(5);
+        setStrength(0.55);
+        setMode('classic');
     };
 
     const handleSaveProject = async () => {
@@ -181,11 +221,29 @@ const Generate = () => {
 
     return (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-            <div>
-                <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple mb-2">
-                    Generate Magic
-                </h2>
-                <p className="text-gray-400">Upload an image and let our AI work its magic.</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple mb-2">
+                        Generate Magic
+                    </h2>
+                    <p className="text-gray-400">Upload an image and let our AI work its magic.</p>
+                </div>
+                {!result && !showOptions && (
+                    <div className="flex bg-white/5 p-1 rounded-xl glass border border-white/10">
+                        <button
+                            onClick={() => setMode('classic')}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${mode === 'classic' ? 'bg-neonBlue text-white shadow-[0_0_15px_rgba(0,243,255,0.3)]' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            Classic
+                        </button>
+                        <button
+                            onClick={() => setMode('ai')}
+                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 ${mode === 'ai' ? 'bg-neonPurple text-white shadow-[0_0_15px_rgba(188,19,254,0.3)]' : 'text-gray-400 hover:text-white'}`}
+                        >
+                            <Sparkles className="w-4 h-4" /> AI Anime
+                        </button>
+                    </div>
+                )}
             </div>
 
             {!result && !showOptions ? (
@@ -196,26 +254,82 @@ const Generate = () => {
 
             {showOptions && !result ? (
                 <div className="space-y-6">
-                    <ProcessingOptions
-                        onSelect={setSelectedProcessing}
-                        selectedOption={selectedProcessing}
-                        intensity={intensity}
-                        onIntensityChange={setIntensity}
-                    />
+                    {mode === 'classic' ? (
+                        <ProcessingOptions
+                            onSelect={setSelectedProcessing}
+                            selectedOption={selectedProcessing}
+                            intensity={intensity}
+                            onIntensityChange={setIntensity}
+                        />
+                    ) : (
+                        <div className="glass p-8 rounded-3xl space-y-8">
+                            <div className="flex items-center gap-4 border-b border-white/10 pb-4">
+                                <div className="p-3 bg-neonPurple/20 rounded-2xl">
+                                    <Sparkles className="w-8 h-8 text-neonPurple" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-white">AI Anime Settings</h3>
+                                    <p className="text-gray-400 text-sm">Fine-tune the conversion strength</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-gray-300 font-medium">Conversion Strength</label>
+                                    <span className="px-3 py-1 bg-neonPurple/20 rounded-lg text-neonPurple font-bold">
+                                        {(strength * 100).toFixed(0)}%
+                                    </span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="0.3"
+                                    max="0.8"
+                                    step="0.05"
+                                    value={strength}
+                                    onChange={(e) => setStrength(parseFloat(e.target.value))}
+                                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-neonPurple"
+                                />
+                                <div className="flex justify-between text-xs text-gray-500">
+                                    <span>Realistic (0.3)</span>
+                                    <span>Creative (0.8)</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex justify-center gap-4">
                         <button
                             onClick={resetAll}
-                            className="px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors font-semibold"
+                            disabled={isConverting}
+                            className="px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors font-semibold disabled:opacity-50"
                         >
                             Back
                         </button>
-                        <button
-                            onClick={() => handleUpload(selectedFile)}
-                            className="px-8 py-3 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-bold hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300"
-                        >
-                            Apply Effects
-                        </button>
+                        {mode === 'classic' ? (
+                            <button
+                                onClick={() => handleUpload(selectedFile)}
+                                className="px-8 py-3 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-bold hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300"
+                            >
+                                Apply Effects
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => handleConvertToAnime(selectedFile)}
+                                disabled={isConverting}
+                                className="px-8 py-3 rounded-xl bg-gradient-to-r from-neonPurple to-magenta text-white font-bold hover:shadow-[0_0_20px_rgba(188,19,254,0.4)] transition-all duration-300 flex items-center gap-2"
+                            >
+                                {isConverting ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-4 h-4" /> Convert to Anime
+                                    </>
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             ) : null}

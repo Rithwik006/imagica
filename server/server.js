@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const authRoutes = require('./routes/auth'); // Import auth routes
 const settingsRoutes = require('./routes/settings'); // Import settings routes
+const animeRoutes = require('./routes/anime'); // Import anime routes
 const db = require('./db');
 const jwt = require('jsonwebtoken');
 
@@ -81,6 +82,7 @@ if (fs.existsSync(clientDistPath)) {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/anime', animeRoutes);
 
 // Multer Config
 const storage = multer.diskStorage({
