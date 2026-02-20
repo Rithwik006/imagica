@@ -48,12 +48,14 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
     const strength = parseFloat(req.body.strength) || 0.55;
 
     try {
+        console.log('[Anime Route] Received request for anime conversion');
         const generatedUrl = await convertToAnime(req.file.path, strength);
 
         // Download the generated image to local storage to keep it permanently
         const localFilename = `anime-${Date.now()}.png`;
         const localPath = path.join(__dirname, '../uploads', localFilename);
 
+        console.log('[Anime Route] Downloading generated image from:', generatedUrl);
         const response = await axios({
             url: generatedUrl,
             method: 'GET',
@@ -65,11 +67,16 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 
         await new Promise((resolve, reject) => {
             writer.on('finish', resolve);
-            writer.on('error', reject);
+            writer.on('error', (err) => {
+                console.error('[Anime Route] Error writing file:', err);
+                reject(err);
+            });
         });
 
         // Clean up temp upload
-        fs.unlinkSync(req.file.path);
+        if (fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
 
         const baseUrl = `${req.protocol}://${req.get('host')}`;
 
@@ -81,10 +88,16 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
         });
 
     } catch (error) {
-        console.error('[Anime Route] Error:', error);
+        console.error('[Anime Route] Error:', error.message);
         // Cleanup on error
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-        res.status(500).json({ error: 'Failed to convert to anime', details: error.message });
+        if (req.file && fs.existsSync(req.file.path)) {
+            try { fs.unlinkSync(req.file.path); } catch (e) { }
+        }
+        res.status(500).json({
+            error: 'Failed to convert to anime',
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
