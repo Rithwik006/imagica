@@ -1,59 +1,49 @@
-const Replicate = require('replicate');
+const axios = require('axios');
 const fs = require('fs');
 
-const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN,
-});
-
 /**
- * Converts an image to anime style using Replicate's Img2Img model.
+ * Converts an image to anime style using Hugging Face's Inference API.
+ * This is a free alternative to Replicate.
  * 
  * @param {string} imagePath - Local path to the uploaded image.
- * @param {number} strength - Denoising strength (0.3 - 0.8).
- * @returns {Promise<string>} - The URL of the generated anime image.
+ * @returns {Promise<string>} - The local path or buffer for the generated image.
  */
-async function convertToAnime(imagePath, strength = 0.55) {
+async function convertToAnime(imagePath) {
     try {
-        if (!process.env.REPLICATE_API_TOKEN) {
-            throw new Error('REPLICATE_API_TOKEN is not defined in environment variables');
-        }
+        const HF_TOKEN = process.env.HF_TOKEN; // Optional but recommended
+        const modelId = "TachibanaYoshino/AnimeGANv2"; // Popular and fast
 
-        const imageBuffer = fs.readFileSync(imagePath);
-        const base64Image = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+        console.log('[AnimeService] Starting conversion using Hugging Face:', modelId);
 
-        console.log('[AnimeService] Starting conversion. Strength:', strength);
-        console.log('[AnimeService] Using model: 412392713/animeganv2');
+        const imageData = fs.readFileSync(imagePath);
 
-        // Using AnimeGANv2 which is highly reliable for photo-to-anime
-        const output = await replicate.run(
-            "412392713/animeganv2:bd2cf1a84e18ad44c3d16f567092183fa40ae75715d3f2b63480b65257e4baab",
-            {
-                input: {
-                    image: base64Image,
-                    model_name: "Webtoon" // Other options: Shinkai, Hayao, Hosoda
-                }
-            }
-        );
+        const response = await axios({
+            url: `https://api-inference.huggingface.co/models/${modelId}`,
+            method: 'POST',
+            data: imageData,
+            headers: {
+                ...(HF_TOKEN ? { 'Authorization': `Bearer ${HF_TOKEN}` } : {}),
+                'Content-Type': 'application/octet-stream'
+            },
+            responseType: 'arraybuffer'
+        });
 
-        if (!output || (Array.isArray(output) && output.length === 0)) {
-            throw new Error('Replicate returned an empty output');
-        }
+        // The response from Hugging Face is the image binary itself
+        const resultBuffer = Buffer.from(response.data);
 
-        const resultUrl = Array.isArray(output) ? output[0] : output;
-        console.log('[AnimeService] Conversion successful. Output URL:', resultUrl);
-        return resultUrl;
+        // We'll return the buffer directly, and the route will handle saving it
+        // Or we can save it to a temp file here. Let's return the buffer.
+        console.log('[AnimeService] Conversion successful via Hugging Face.');
+        return resultBuffer;
     } catch (error) {
-        console.error('[AnimeService] Error during conversion:', error.message);
+        console.error('[AnimeService] Error during HF conversion:', error.message);
         if (error.response) {
-            try {
-                const errorBody = await error.response.text();
-                console.error('[AnimeService] Replicate API Error Details:', errorBody);
-            } catch (e) {
-                console.error('[AnimeService] Could not parse error body');
-            }
+            console.error('[AnimeService] HF Status:', error.response.status);
+            console.error('[AnimeService] HF Data:', error.response.data.toString());
         }
         throw error;
     }
 }
 
 module.exports = { convertToAnime };
+

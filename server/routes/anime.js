@@ -49,29 +49,15 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 
     try {
         console.log('[Anime Route] Received request for anime conversion');
-        const generatedUrl = await convertToAnime(req.file.path, strength);
+        const generatedBuffer = await convertToAnime(req.file.path);
 
-        // Download the generated image to local storage to keep it permanently
+        // Save the generated buffer to local storage
         const localFilename = `anime-${Date.now()}.png`;
         const localPath = path.join(__dirname, '../uploads', localFilename);
 
-        console.log('[Anime Route] Downloading generated image from:', generatedUrl);
-        const response = await axios({
-            url: generatedUrl,
-            method: 'GET',
-            responseType: 'stream'
-        });
+        console.log('[Anime Route] Saving generated image to:', localPath);
+        fs.writeFileSync(localPath, generatedBuffer);
 
-        const writer = fs.createWriteStream(localPath);
-        response.data.pipe(writer);
-
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', (err) => {
-                console.error('[Anime Route] Error writing file:', err);
-                reject(err);
-            });
-        });
 
         // Clean up temp upload
         if (fs.existsSync(req.file.path)) {
