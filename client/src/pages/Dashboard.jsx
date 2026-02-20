@@ -6,6 +6,7 @@ import ProcessingOptions from '../components/ProcessingOptions';
 import Settings from '../components/Settings';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff } from 'lucide-react';
 
 const DashboardOverview = () => {
@@ -102,6 +103,7 @@ const DashboardOverview = () => {
 };
 
 const Generate = () => {
+    const [searchParams] = useSearchParams();
     const [result, setResult] = React.useState(null);
     const [selectedFile, setSelectedFile] = React.useState(null);
     const [selectedProcessing, setSelectedProcessing] = React.useState(['grayscale']);
@@ -110,7 +112,13 @@ const Generate = () => {
     const [showOptions, setShowOptions] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
     const [isConverting, setIsConverting] = React.useState(false);
-    const [mode, setMode] = React.useState('classic'); // 'classic' or 'ai'
+    const [mode, setMode] = React.useState(searchParams.get('mode') === 'ai' ? 'ai' : 'classic');
+
+    React.useEffect(() => {
+        const urlMode = searchParams.get('mode');
+        if (urlMode === 'ai') setMode('ai');
+        else if (urlMode === 'classic') setMode('classic');
+    }, [searchParams]);
 
     const handleFileSelect = (file) => {
         setSelectedFile(file);
