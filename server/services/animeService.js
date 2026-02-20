@@ -18,7 +18,7 @@ async function convertToAnime(imagePath) {
         const imageData = fs.readFileSync(imagePath);
 
         const response = await axios({
-            url: `https://api-inference.huggingface.co/models/${modelId}`,
+            url: `https://router.huggingface.co/hf-inference/models/${modelId}`,
             method: 'POST',
             data: imageData,
             headers: {
