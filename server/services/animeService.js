@@ -19,16 +19,17 @@ async function convertToAnime(imagePath, strength = 0.55) {
 
         console.log('[AnimeService] Starting conversion with strength:', strength);
 
-        // Using the Anything-V3-1 or similar anime-tuned model
-        // Model: cjwbw/anything-v3-1
+        // Using SDXL which is extremely stable and high-quality
         const output = await replicate.run(
-            "cjwbw/anything-v3-1:0f38166c4c95847e09e1e2d424072f4fb8e612f00cd11542f741c88c7518451f",
+            "stability-ai/sdxl:77fd0e4e5ee6162a04684b5c71a3372c3d04d80a379116e0339d1b032d8a5628",
             {
                 input: {
                     image: base64Image,
                     prompt: "anime style portrait, cinematic lighting, watercolor texture, soft pastel colors, highly detailed, expressive anime eyes, smooth shading, clean line art, vibrant atmosphere",
-                    negative_prompt: "blurry, distorted anatomy, watermark, text, low resolution, artifacts",
-                    strength: strength,
+                    refine: "expert_ensemble_refiner",
+                    apply_watermark: false,
+                    negative_prompt: "blurry, distorted anatomy, watermark, text, low resolution, artifacts, realistic, photograph",
+                    prompt_strength: strength,
                     num_outputs: 1,
                     guidance_scale: 7.5,
                     num_inference_steps: 50
