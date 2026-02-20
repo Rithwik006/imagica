@@ -19,18 +19,18 @@ async function convertToAnime(imagePath, strength = 0.55) {
 
         console.log('[AnimeService] Starting conversion with strength:', strength);
 
-        // Using Anything-V3-Better-VAE which is a standard for anime
+        // Using SDXL which supports img2img with 'image' and 'prompt_strength'
         const output = await replicate.run(
-            "cjwbw/anything-v3-better-vae:09a5805203f4c12da649ec1923bb7729517ca25fcac790e640eaa9ed66573b65",
+            "stability-ai/sdxl:39ed52f2a78e934b3ba6e10c933b006c99470206af455339f4a13ad3b5b15312",
             {
                 input: {
                     image: base64Image,
-                    prompt: "anime style portrait, cinematic lighting, highly detailed, expressive anime eyes, smooth shading, vibrant atmosphere",
-                    negative_prompt: "blurry, distorted anatomy, watermark, text, low resolution, artifacts",
-                    strength: strength,
+                    prompt: "anime style portrait, cinematic lighting, watercolor texture, soft pastel colors, highly detailed, expressive anime eyes, smooth shading, clean line art, vibrant atmosphere",
+                    negative_prompt: "blurry, distorted anatomy, watermark, text, low resolution, artifacts, realistic, photograph",
+                    prompt_strength: strength,
                     num_outputs: 1,
-                    guidance_scale: 9,
-                    num_inference_steps: 50
+                    guidance_scale: 7.5,
+                    num_inference_steps: 30
                 }
             }
         );
