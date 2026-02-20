@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Image, Globe, Grid, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Image, Globe, Grid, Settings, LogOut, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
@@ -8,6 +8,7 @@ const Sidebar = () => {
     const links = [
         { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
         { name: 'Generate', path: '/dashboard/generate', icon: Image },
+        { name: 'Anime Magic', path: '/dashboard/generate', icon: Sparkles },
         { name: 'Your Posts', path: '/dashboard/posts', icon: Grid },
         { name: 'Public Feed', path: '/dashboard/public', icon: Globe },
         { name: 'Settings', path: '/dashboard/settings', icon: Settings },
