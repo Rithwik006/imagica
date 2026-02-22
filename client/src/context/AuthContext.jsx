@@ -101,6 +101,8 @@ export function AuthProvider({ children }) {
 
                     localStorage.setItem('token', data.token);
                     setCurrentUser(data.user);
+                    // Force navigation to dashboard after successful redirect
+                    window.location.href = '/dashboard';
                 }
             } catch (error) {
                 console.error("Error handling Google redirect result:", error);
