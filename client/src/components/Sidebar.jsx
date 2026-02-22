@@ -7,8 +7,7 @@ const Sidebar = () => {
     const { currentUser, logout } = useAuth();
     const links = [
         { name: 'Overview', path: '/dashboard', icon: LayoutDashboard },
-        { name: 'Generate', path: '/dashboard/generate?mode=classic', icon: Image },
-        { name: 'Anime Magic', path: '/dashboard/generate?mode=ai', icon: Sparkles },
+        { name: 'Generate', path: '/dashboard/generate', icon: Image },
         { name: 'Your Posts', path: '/dashboard/posts', icon: Grid },
         { name: 'Public Feed', path: '/dashboard/public', icon: Globe },
         { name: 'Settings', path: '/dashboard/settings', icon: Settings },
