@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { API_URL } from '../config';
 import { signInWithGoogle, firebaseSignOut, auth } from '../firebase';
+import { getRedirectResult } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -45,26 +46,9 @@ export function AuthProvider({ children }) {
     }
 
     async function loginWithGoogle() {
-        // Step 1: Firebase Google popup
-        const result = await signInWithGoogle();
-        const firebaseUser = result.user;
-
-        // Step 2: Get the Firebase ID token
-        const idToken = await firebaseUser.getIdToken();
-
-        // Step 3: Send token to our backend to get a JWT
-        const response = await fetch(`${AUTH_API_URL}/google-firebase`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken })
-        });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to sign in with Google');
-
-        localStorage.setItem('token', data.token);
-        setCurrentUser(data.user);
-        return data;
+        // Step 1: Firebase Google redirect. 
+        // This will navigate the user away from the app.
+        await signInWithGoogle();
     }
 
     function logout() {
@@ -99,7 +83,37 @@ export function AuthProvider({ children }) {
             setLoading(false);
         };
 
-        verifyToken();
+        const checkRedirectResult = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result) {
+                    const firebaseUser = result.user;
+                    const idToken = await firebaseUser.getIdToken();
+
+                    const response = await fetch(`${AUTH_API_URL}/google-firebase`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ idToken })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Failed to complete Google sign-in');
+
+                    localStorage.setItem('token', data.token);
+                    setCurrentUser(data.user);
+                }
+            } catch (error) {
+                console.error("Error handling Google redirect result:", error);
+                alert("Google Sign-In failed: " + error.message);
+            }
+        };
+
+        const initAuth = async () => {
+            await checkRedirectResult(); // First check if we're coming back from Google
+            await verifyToken();         // Then check our own JWT session
+        };
+
+        initAuth();
     }, []);
 
     const updateProfile = (userData) => {
