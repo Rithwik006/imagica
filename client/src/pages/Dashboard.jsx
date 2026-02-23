@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff, Search, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -515,15 +515,13 @@ const Dashboard = () => {
 
     return (
         <DesktopStudioLayout activeTab={getActiveTab()} onTabChange={handleTabChange}>
-            <div className="p-8 pb-20">
-                <Routes>
-                    <Route index element={<DashboardOverview />} />
-                    <Route path="generate" element={<Generate />} />
-                    <Route path="posts" element={<YourPosts />} />
-                    <Route path="public" element={<PublicFeed />} />
-                    <Route path="settings" element={<Settings />} />
-                </Routes>
-            </div>
+            <Routes>
+                <Route index element={<Navigate to="/dashboard/generate" replace />} />
+                <Route path="generate" element={<Generate />} />
+                <Route path="posts" element={<div className="p-8 pb-20"><YourPosts /></div>} />
+                <Route path="public" element={<div className="p-8 pb-20"><PublicFeed /></div>} />
+                <Route path="settings" element={<div className="p-8 pb-20"><Settings /></div>} />
+            </Routes>
         </DesktopStudioLayout>
     );
 };
