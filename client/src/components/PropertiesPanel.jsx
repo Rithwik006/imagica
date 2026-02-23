@@ -32,23 +32,26 @@ const PropertiesPanel = ({ opacity, setOpacity, blur, setBlur, onGenerate, isGen
 
             {/* Main Action Button */}
             <button
-                className={`mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,243,255,0.4)]'}`}
-                onClick={onGenerate}
+                className={`mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none transition-all duration-300 ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,243,255,0.4)] cursor-pointer'}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    if (!disabled && !isGenerating) onGenerate();
+                }}
                 disabled={disabled || isGenerating}
             >
-                <div className="absolute inset-0 bg-gradient-to-r from-neonBlue via-neonPurple to-neonBlue animate-bg-shift"></div>
-                <div className={`relative bg-studioBg rounded-[14px] py-4 px-6 flex items-center justify-between transition-colors duration-300 ${disabled ? '' : 'group-hover:bg-transparent'}`}>
+                <div className="absolute inset-0 bg-gradient-to-r from-neonBlue via-neonPurple to-neonBlue animate-bg-shift opacity-80 group-hover:opacity-100"></div>
+                <div className={`relative bg-studioBg rounded-[14px] py-4 px-6 flex items-center justify-between transition-colors duration-300 ${disabled ? 'bg-studioBg/90' : 'group-hover:bg-transparent'}`}>
                     <div className="flex items-center gap-3">
                         {isGenerating ? (
                             <div className="w-5 h-5 border-2 border-white/20 border-t-neonBlue rounded-full animate-spin" />
                         ) : (
                             <Wand2 className={`w-5 h-5 ${disabled ? 'text-gray-500' : 'text-neonBlue group-hover:text-white transition-colors'}`} />
                         )}
-                        <span className={`font-bold tracking-tighter text-sm ${disabled ? 'text-gray-500' : 'group-hover:text-white transition-colors'} ${isGenerating ? 'text-white' : ''}`}>
+                        <span className={`font-black tracking-[0.15em] text-sm uppercase ${disabled ? 'text-gray-500' : 'text-white transition-colors'}`}>
                             {isGenerating ? 'PROCESSING...' : 'GENERATE MASTERPIECE'}
                         </span>
                     </div>
-                    {!isGenerating && <ChevronRight className={`w-4 h-4 ${disabled ? 'text-gray-500' : 'text-gray-500 group-hover:text-white transition-colors'}`} />}
+                    {!isGenerating && <ChevronRight className={`w-4 h-4 ${disabled ? 'text-gray-500' : 'text-neonBlue group-hover:text-white transition-colors'}`} />}
                 </div>
             </button>
         </aside>
