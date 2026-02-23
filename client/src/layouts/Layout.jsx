@@ -13,9 +13,9 @@ const Layout = ({ children }) => {
             {!isDashboard && <Navbar />}
 
             <div className="flex flex-grow relative z-10">
-                {isDashboard && <Sidebar />}
+                {/* Redundant Sidebar removed in favor of DesktopStudioLayout in Dashboard */}
 
-                <main className={`flex-grow ${isDashboard ? 'ml-64 p-8 pt-24' : 'pt-24 px-4'}`}>
+                <main className={`flex-grow ${isDashboard ? 'h-screen pt-0' : 'pt-24 px-4'}`}>
                     {children}
                 </main>
             </div>

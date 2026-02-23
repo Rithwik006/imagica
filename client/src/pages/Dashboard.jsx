@@ -1,13 +1,8 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import ImageUpload from '../components/ImageUpload';
-import ProcessingOptions from '../components/ProcessingOptions';
-import Settings from '../components/Settings';
-import { API_URL } from '../config';
-import { useAuth } from '../context/AuthContext';
-import { useSearchParams } from 'react-router-dom';
-import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff, Search } from 'lucide-react';
+import DesktopStudioLayout from '../layouts/DesktopStudioLayout';
+import ToolDock from '../components/ToolDock';
+import PropertiesPanel from '../components/PropertiesPanel';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const DashboardOverview = () => {
     const { currentUser } = useAuth();
@@ -38,7 +33,7 @@ const DashboardOverview = () => {
     }, []);
 
     const features = [
-        { icon: Sparkles, title: "Smart Filters", desc: "Apply multiple professional grade filters instantly." },
+        { icon: Sparkles, title: "Pro Filters", desc: "Apply multiple professional grade filters instantly." },
         { icon: Zap, title: "Fast Processing", desc: "Real-time image manipulation with optimized algorithms." },
         { icon: Layers, title: "Batch Editing", desc: "Layer multiple effects to create unique styles." },
         { icon: Share2, title: "Easy Export", desc: "Download high-quality results or save to your cloud gallery." },
@@ -107,9 +102,12 @@ const Generate = () => {
     const [result, setResult] = React.useState(null);
     const [selectedFile, setSelectedFile] = React.useState(null);
     const [selectedProcessing, setSelectedProcessing] = React.useState(['grayscale']);
-    const [intensity, setIntensity] = React.useState(5);
+    const [intensity, setIntensity] = React.useState(50); // Scale to 100 for proper slider feel
+    const [opacity, setOpacity] = React.useState(100);
+    const [blur, setBlur] = React.useState(0);
     const [showOptions, setShowOptions] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [activeTool, setActiveTool] = React.useState('select');
 
     const handleFileSelect = (file) => {
         setSelectedFile(file);
@@ -185,89 +183,74 @@ const Generate = () => {
     };
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple mb-2">
-                        Generate Magic
-                    </h2>
-                    <p className="text-gray-400">Upload an image and let our AI work its magic.</p>
-                </div>
+        <div className="flex flex-grow overflow-hidden relative">
+            <ToolDock activeTool={activeTool} onToolSelect={setActiveTool} />
 
-            </div>
-
-            {!result && !showOptions ? (
-                <div className="max-w-4xl mx-auto">
-                    <ImageUpload onUpload={handleFileSelect} />
-                </div>
-            ) : null}
-
-            {showOptions && !result ? (
-                <div className="space-y-6">
-                    <ProcessingOptions
-                        onSelect={setSelectedProcessing}
-                        selectedOption={selectedProcessing}
-                        intensity={intensity}
-                        onIntensityChange={setIntensity}
-                    />
-
-                    <div className="flex justify-center gap-4">
-                        <button
-                            onClick={resetAll}
-                            className="px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors font-semibold"
-                        >
-                            Back
-                        </button>
-                        <button
-                            onClick={() => handleUpload(selectedFile)}
-                            className="px-8 py-3 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-bold hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300"
-                        >
-                            Apply Effects
-                        </button>
-                    </div>
-                </div>
-            ) : null}
-
-            {result ? (
-                <div className="space-y-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="glass p-4 rounded-3xl overflow-hidden">
-                            <h3 className="text-sm font-semibold text-gray-400 mb-2 px-2 uppercase tracking-wider">Original</h3>
-                            <img src={result.originalUrl} alt="Original" className="w-full rounded-2xl h-[400px] object-contain bg-black/20" />
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex-grow flex flex-col items-center justify-center p-12 overflow-hidden"
+            >
+                {/* Creative Canvas */}
+                <div className="relative w-full max-w-5xl aspect-video bg-black/40 rounded-[32px] border border-white/5 flex items-center justify-center overflow-hidden group shadow-2xl">
+                    {!selectedFile && !result ? (
+                        <div className="max-w-md w-full p-8 text-center transition-all duration-500 group-hover:scale-105">
+                            <div className="w-20 h-20 rounded-3xl bg-neonBlue/10 flex items-center justify-center mx-auto mb-6">
+                                <ImageIcon className="w-10 h-10 text-neonBlue" />
+                            </div>
+                            <h2 className="text-2xl font-bold text-white mb-2">Drop your asset here</h2>
+                            <p className="text-gray-500 text-sm mb-8">Start your next masterpiece by uploading a photo</p>
+                            <ImageUpload onUpload={handleFileSelect} />
                         </div>
-                        <div className="glass p-4 rounded-3xl overflow-hidden border-neonBlue/30 border">
-                            <h3 className="text-sm font-semibold text-neonBlue mb-2 px-2 uppercase tracking-wider">Processed</h3>
-                            <img src={result.processedUrl} alt="Processed" className="w-full rounded-2xl h-[400px] object-contain bg-black/20" />
-                        </div>
-                    </div>
+                    ) : (
+                        <div className="relative w-full h-full flex items-center justify-center p-8">
+                            <img
+                                src={result?.processedUrl || (selectedFile ? URL.createObjectURL(selectedFile) : '')}
+                                alt="Canvas"
+                                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl transition-transform duration-500"
+                                style={{ opacity: opacity / 100, filter: `blur(${blur}px)` }}
+                            />
 
-                    <div className="flex justify-center gap-4 flex-wrap">
-                        <button
-                            onClick={resetAll}
-                            className="px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors font-semibold"
-                        >
-                            Process Another
-                        </button>
+                            {/* Canvas Controls Overlay */}
+                            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 glass rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button onClick={resetAll} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">Discard</button>
+                                <div className="w-[1px] h-4 bg-white/10"></div>
+                                <span className="text-[10px] font-bold text-neonBlue">124% ZOOM</span>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Bottom Action Bar */}
+                {result && (
+                    <div className="mt-8 flex gap-4">
                         <button
                             onClick={handleSaveProject}
                             disabled={isSaving}
-                            className="px-8 py-3 rounded-xl glass hover:bg-white/10 transition-colors font-semibold disabled:opacity-50"
+                            className="px-10 py-4 rounded-2xl glass hover:bg-white/5 transition-all font-bold text-sm tracking-widest disabled:opacity-50"
                         >
-                            {isSaving ? 'Saving...' : 'Save to Posts'}
+                            {isSaving ? 'SAVING...' : 'SAVE TO POSTS'}
                         </button>
                         <a
                             href={result.processedUrl}
-                            download={`processed-${Date.now()}.png`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-8 py-3 rounded-xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-bold hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all duration-300"
+                            download={`imagica-${Date.now()}.png`}
+                            className="px-10 py-4 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-studioBg font-black text-sm tracking-widest hover:shadow-[0_0_30px_rgba(0,243,255,0.4)] transition-all"
                         >
-                            Download Result
+                            DOWNLOAD
                         </a>
                     </div>
-                </div>
-            ) : null}
-        </motion.div>
+                )}
+            </motion.div>
+
+            <PropertiesPanel
+                opacity={opacity}
+                setOpacity={setOpacity}
+                blur={blur}
+                setBlur={setBlur}
+                onFlip={() => { }}
+                onCrop={() => { }}
+            />
+        </div>
     );
 };
 
@@ -467,16 +450,43 @@ const PublicFeed = () => {
 };
 
 const Dashboard = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    // Map current path to tab
+    const getActiveTab = () => {
+        const path = location.pathname.split('/').pop();
+        if (path === 'dashboard' || path === 'generate') return 'canvas';
+        if (path === 'posts') return 'assets';
+        if (path === 'public') return 'community';
+        if (path === 'settings') return 'settings';
+        return 'studio';
+    };
+
+    const handleTabChange = (tab) => {
+        const routes = {
+            'canvas': '/dashboard/generate',
+            'assets': '/dashboard/posts',
+            'community': '/dashboard/public',
+            'settings': '/dashboard/settings',
+            'studio': '/dashboard/generate',
+            'gallery': '/dashboard/public'
+        };
+        navigate(routes[tab] || '/dashboard');
+    };
+
     return (
-        <div className="min-h-full pb-10">
-            <Routes>
-                <Route index element={<DashboardOverview />} />
-                <Route path="generate" element={<Generate />} />
-                <Route path="posts" element={<YourPosts />} />
-                <Route path="public" element={<PublicFeed />} />
-                <Route path="settings" element={<Settings />} />
-            </Routes>
-        </div>
+        <DesktopStudioLayout activeTab={getActiveTab()} onTabChange={handleTabChange}>
+            <div className="p-8 pb-20">
+                <Routes>
+                    <Route index element={<DashboardOverview />} />
+                    <Route path="generate" element={<Generate />} />
+                    <Route path="posts" element={<YourPosts />} />
+                    <Route path="public" element={<PublicFeed />} />
+                    <Route path="settings" element={<Settings />} />
+                </Routes>
+            </div>
+        </DesktopStudioLayout>
     );
 };
 

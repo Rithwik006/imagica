@@ -4,6 +4,7 @@
 @theme {
   --color-neonBlue: #00f3ff;
   --color-neonPurple: #bc13fe;
+  --color-studioBg: #0c1014;
   --color-glassBg: rgba(255, 255, 255, 0.03);
   --color-glassBorder: rgba(255, 255, 255, 0.1);
   --font-inter: "Inter", "system-ui", "-apple-system", "sans-serif";
@@ -51,5 +52,10 @@
 
   .btn-glass {
     @apply px-8 py-4 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-2xl text-white font-bold transition-all duration-300 hover:bg-white/10;
+  }
+
+  .studio-grid {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
   }
 }

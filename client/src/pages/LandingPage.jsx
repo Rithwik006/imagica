@@ -52,8 +52,8 @@ const LandingPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
                     <FeatureCard
                         icon={<Wand2 className="w-8 h-8 text-neonBlue" />}
-                        title="AI Enhancement"
-                        desc="Upscale and restore details seamlessly with our neural networks."
+                        title="Professional Image Restoration"
+                        desc="Upscale and restore details seamlessly with our advanced toolset."
                     />
                     <FeatureCard
                         icon={<Zap className="w-8 h-8 text-yellow-400" />}
@@ -62,8 +62,8 @@ const LandingPage = () => {
                     />
                     <FeatureCard
                         icon={<Image className="w-8 h-8 text-pink-500" />}
-                        title="Smart Editing"
-                        desc="Intelligent object removal and background replacement."
+                        title="Precision Creative Suite"
+                        desc="Intelligent object removal and professional background replacement."
                     />
                     <FeatureCard
                         icon={<Shield className="w-8 h-8 text-green-400" />}
