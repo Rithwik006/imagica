@@ -6,9 +6,6 @@ const ToolDock = ({ activeTool, onToolSelect }) => {
     const tools = [
         { id: 'select', icon: MousePointer2, label: 'Select' },
         { id: 'brush', icon: Pencil, label: 'Draw' },
-        { id: 'shapes', icon: Shapes, label: 'Shapes' },
-        { id: 'text', icon: Type, label: 'Text' },
-        { id: 'image', icon: ImageIcon, label: 'Library' },
     ];
 
     return (
@@ -18,8 +15,8 @@ const ToolDock = ({ activeTool, onToolSelect }) => {
                     key={tool.id}
                     onClick={() => onToolSelect(tool.id)}
                     className={`relative p-4 rounded-2xl transition-all duration-300 group outline-none ${activeTool === tool.id
-                            ? 'bg-neonBlue text-studioBg shadow-[0_0_15px_rgba(0,243,255,0.4)]'
-                            : 'text-gray-500 hover:text-white hover:bg-white/5'
+                        ? 'bg-neonBlue text-studioBg shadow-[0_0_15px_rgba(0,243,255,0.4)]'
+                        : 'text-gray-500 hover:text-white hover:bg-white/5'
                         }`}
                 >
                     <tool.icon className="w-6 h-6" />

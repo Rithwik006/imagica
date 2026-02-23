@@ -196,10 +196,10 @@ const Generate = () => {
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex-grow flex flex-col items-center justify-center p-12 overflow-hidden"
+                className="flex-grow flex flex-col items-center p-12 overflow-y-auto scrollbar-hide"
             >
                 {/* Creative Canvas */}
-                <div className="relative w-full max-w-5xl aspect-video bg-black/40 rounded-[32px] border border-white/5 flex items-center justify-center overflow-hidden group shadow-2xl">
+                <div className="relative w-full max-w-5xl aspect-video bg-black/40 rounded-[32px] border border-white/5 flex items-center justify-center overflow-hidden group shadow-2xl flex-shrink-0">
                     {!selectedFile && !result ? (
                         <div className="max-w-md w-full p-8 text-center transition-all duration-500 group-hover:scale-105">
                             <div className="w-20 h-20 rounded-3xl bg-neonBlue/10 flex items-center justify-center mx-auto mb-6">
@@ -222,15 +222,46 @@ const Generate = () => {
                             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 glass rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <button onClick={resetAll} className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">Discard</button>
                                 <div className="w-[1px] h-4 bg-white/10"></div>
-                                <span className="text-[10px] font-bold text-neonBlue">124% ZOOM</span>
+                                <span className="text-[10px] font-bold text-neonBlue">STUDIO CANVAS</span>
                             </div>
                         </div>
                     )}
                 </div>
 
-                {/* Bottom Action Bar */}
+                {/* Filters & Processing Controls (Visible when file is selected but not processed) */}
+                {showOptions && !result && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="w-full max-w-5xl mt-12 space-y-8 pb-20"
+                    >
+                        <ProcessingOptions
+                            onSelect={setSelectedProcessing}
+                            selectedOption={selectedProcessing}
+                            intensity={intensity}
+                            onIntensityChange={setIntensity}
+                        />
+
+                        <div className="flex justify-center">
+                            <button
+                                onClick={() => handleUpload(selectedFile)}
+                                className="px-12 py-4 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-black text-sm tracking-[0.2em] shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_40px_rgba(0,243,255,0.5)] transition-all duration-300 transform hover:scale-105"
+                            >
+                                GENERATE MASTERPIECE
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Bottom Action Bar (Visible when result is ready) */}
                 {result && (
-                    <div className="mt-8 flex gap-4">
+                    <div className="mt-12 flex gap-4">
+                        <button
+                            onClick={resetAll}
+                            className="px-10 py-4 rounded-2xl glass hover:bg-white/5 transition-all font-bold text-sm tracking-widest"
+                        >
+                            EDIT ANOTHER
+                        </button>
                         <button
                             onClick={handleSaveProject}
                             disabled={isSaving}
@@ -257,7 +288,7 @@ const Generate = () => {
                 onFlip={() => { }}
                 onCrop={() => { }}
             />
-        </div>
+        </div >
     );
 };
 

@@ -111,20 +111,17 @@ const ImageUpload = ({ onUpload }) => {
                                 Browse Files
                             </span>
                         </label>
+                        <div className="mt-8 flex items-center justify-center gap-4">
+                            <span className="text-xs font-bold text-gray-600 uppercase tracking-widest">or</span>
+                            <button
+                                onClick={() => setShowCamera(true)}
+                                className="px-6 py-2 rounded-full border border-gray-600 hover:border-neonBlue hover:bg-white/5 transition-all text-gray-400 hover:text-white flex items-center justify-center gap-2 font-bold text-xs uppercase tracking-widest"
+                            >
+                                <CameraIcon className="w-4 h-4" />
+                                Take Photo
+                            </button>
+                        </div>
                     </div>
-
-                    <div className="relative flex items-center justify-center">
-                        <div className="h-px bg-gray-700 w-full absolute"></div>
-                        <span className="bg-gray-900 px-4 relative text-gray-400 text-sm">OR</span>
-                    </div>
-
-                    <button
-                        onClick={() => setShowCamera(true)}
-                        className="w-full py-4 rounded-xl border border-gray-600 hover:border-neonBlue hover:bg-white/5 transition-all text-gray-300 hover:text-white flex items-center justify-center gap-2 font-semibold"
-                    >
-                        <CameraIcon className="w-5 h-5" />
-                        Take a Photo
-                    </button>
                 </div>
             ) : showCamera ? (
                 <div className="glass p-6 rounded-3xl">
