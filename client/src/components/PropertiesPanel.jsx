@@ -32,26 +32,30 @@ const PropertiesPanel = ({ opacity, setOpacity, blur, setBlur, onGenerate, isGen
 
             {/* Main Action Button */}
             <button
-                className={`mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none transition-all duration-300 ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,243,255,0.4)] cursor-pointer'}`}
+                className={`mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,243,255,0.4)] cursor-pointer ${isGenerating ? 'opacity-80 pointer-events-none' : ''}`}
                 onClick={(e) => {
                     e.preventDefault();
-                    if (!disabled && !isGenerating) onGenerate();
+                    if (isGenerating) return;
+                    if (disabled) {
+                        alert("Please upload a photo first to generate!");
+                        return;
+                    }
+                    onGenerate();
                 }}
-                disabled={disabled || isGenerating}
             >
-                <div className="absolute inset-0 bg-gradient-to-r from-neonBlue via-neonPurple to-neonBlue animate-bg-shift opacity-80 group-hover:opacity-100"></div>
-                <div className={`relative bg-studioBg rounded-[14px] py-4 px-6 flex items-center justify-between transition-colors duration-300 ${disabled ? 'bg-studioBg/90' : 'group-hover:bg-transparent'}`}>
+                <div className="absolute inset-0 bg-gradient-to-r from-neonBlue via-neonPurple to-neonBlue animate-bg-shift opacity-100"></div>
+                <div className="relative bg-studioBg/90 hover:bg-transparent rounded-[14px] py-4 px-6 flex items-center justify-between transition-colors duration-300">
                     <div className="flex items-center gap-3">
                         {isGenerating ? (
                             <div className="w-5 h-5 border-2 border-white/20 border-t-neonBlue rounded-full animate-spin" />
                         ) : (
-                            <Wand2 className={`w-5 h-5 ${disabled ? 'text-gray-500' : 'text-neonBlue group-hover:text-white transition-colors'}`} />
+                            <Wand2 className="w-5 h-5 text-neonBlue group-hover:text-white transition-colors" />
                         )}
-                        <span className={`font-black tracking-[0.15em] text-sm uppercase ${disabled ? 'text-gray-500' : 'text-white transition-colors'}`}>
+                        <span className="font-black tracking-[0.15em] text-sm uppercase text-white transition-colors">
                             {isGenerating ? 'PROCESSING...' : 'GENERATE MASTERPIECE'}
                         </span>
                     </div>
-                    {!isGenerating && <ChevronRight className={`w-4 h-4 ${disabled ? 'text-gray-500' : 'text-neonBlue group-hover:text-white transition-colors'}`} />}
+                    {!isGenerating && <ChevronRight className="w-4 h-4 text-neonBlue group-hover:text-white transition-colors" />}
                 </div>
             </button>
         </aside>
