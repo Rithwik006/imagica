@@ -114,6 +114,7 @@ const Generate = () => {
     const [blur, setBlur] = React.useState(0);
     const [showOptions, setShowOptions] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [isGenerating, setIsGenerating] = React.useState(false);
 
     const handleFileSelect = (file) => {
         setSelectedFile(file);
@@ -123,6 +124,7 @@ const Generate = () => {
     const handleUpload = async (file) => {
         if (!file) return;
 
+        setIsGenerating(true);
         const formData = new FormData();
         formData.append('image', file);
         formData.append('processingType', JSON.stringify(selectedProcessing));
@@ -141,6 +143,8 @@ const Generate = () => {
         } catch (error) {
             console.error('Error uploading image:', error);
             alert('Processing failed. Please try again.');
+        } finally {
+            setIsGenerating(false);
         }
     };
 
@@ -209,9 +213,19 @@ const Generate = () => {
                             <img
                                 src={result?.processedUrl || (selectedFile ? URL.createObjectURL(selectedFile) : '')}
                                 alt="Canvas"
-                                className="max-w-full max-h-full object-contain rounded-xl shadow-2xl transition-transform duration-500"
+                                className={`max-w-full max-h-full object-contain rounded-xl transition-all duration-500 ${isGenerating ? 'opacity-50 blur-sm scale-95' : 'shadow-2xl'}`}
                                 style={{ opacity: opacity / 100, filter: `blur(${blur}px)` }}
                             />
+
+                            {/* Generation Loading Overlay */}
+                            {isGenerating && (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/40 rounded-[32px] backdrop-blur-sm transition-all duration-300">
+                                    <div className="w-16 h-16 border-4 border-white/10 border-t-neonBlue rounded-full animate-spin mb-4"></div>
+                                    <div className="px-6 py-2 rounded-full glass border border-neonBlue/30 shadow-[0_0_20px_rgba(0,243,255,0.2)]">
+                                        <span className="text-sm font-bold tracking-widest text-neonBlue uppercase animate-pulse">Processing Masterpiece...</span>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Canvas Controls Overlay */}
                             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 glass rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -236,17 +250,6 @@ const Generate = () => {
                             intensity={intensity}
                             onIntensityChange={setIntensity}
                         />
-
-                        <div className="flex justify-center">
-                            <button
-                                id="generate-btn"
-                                onClick={() => handleUpload(selectedFile)}
-                                disabled={!selectedFile}
-                                className={`px-12 py-4 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-black text-sm tracking-[0.2em] transition-all duration-300 transform ${!selectedFile ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_40px_rgba(0,243,255,0.5)] hover:scale-105'}`}
-                            >
-                                GENERATE MASTERPIECE
-                            </button>
-                        </div>
                     </motion.div>
                 )}
 
@@ -282,8 +285,9 @@ const Generate = () => {
                 setOpacity={setOpacity}
                 blur={blur}
                 setBlur={setBlur}
-                onFlip={() => { }}
-                onCrop={() => { }}
+                onGenerate={() => handleUpload(selectedFile)}
+                isGenerating={isGenerating}
+                disabled={!selectedFile}
             />
         </div >
     );

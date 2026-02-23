@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Settings, Crop, RotateCcw, Maximize, Wand2, ChevronRight } from 'lucide-react';
 
-const PropertiesPanel = ({ opacity, setOpacity, blur, setBlur, onFlip, onCrop }) => {
+const PropertiesPanel = ({ opacity, setOpacity, blur, setBlur, onGenerate, isGenerating, disabled }) => {
     return (
         <aside className="w-80 border-l border-white/5 bg-studioBg/50 backdrop-blur-xl flex flex-col p-6 gap-8 z-40">
             <div className="flex items-center justify-between">
@@ -32,19 +32,23 @@ const PropertiesPanel = ({ opacity, setOpacity, blur, setBlur, onFlip, onCrop })
 
             {/* Main Action Button */}
             <button
-                className="mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none"
-                onClick={() => {
-                    const el = document.getElementById('generate-btn');
-                    if (el) el.click();
-                }}
+                className={`mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none transition-all ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,243,255,0.4)]'}`}
+                onClick={onGenerate}
+                disabled={disabled || isGenerating}
             >
                 <div className="absolute inset-0 bg-gradient-to-r from-neonBlue via-neonPurple to-neonBlue animate-bg-shift"></div>
-                <div className="relative bg-studioBg rounded-[14px] py-4 px-6 flex items-center justify-between group-hover:bg-transparent transition-colors duration-300">
+                <div className={`relative bg-studioBg rounded-[14px] py-4 px-6 flex items-center justify-between transition-colors duration-300 ${disabled ? '' : 'group-hover:bg-transparent'}`}>
                     <div className="flex items-center gap-3">
-                        <Wand2 className="w-5 h-5 text-neonBlue group-hover:text-white transition-colors" />
-                        <span className="font-bold tracking-tighter text-sm group-hover:text-white transition-colors">GENERATE MASTERPIECE</span>
+                        {isGenerating ? (
+                            <div className="w-5 h-5 border-2 border-white/20 border-t-neonBlue rounded-full animate-spin" />
+                        ) : (
+                            <Wand2 className={`w-5 h-5 ${disabled ? 'text-gray-500' : 'text-neonBlue group-hover:text-white transition-colors'}`} />
+                        )}
+                        <span className={`font-bold tracking-tighter text-sm ${disabled ? 'text-gray-500' : 'group-hover:text-white transition-colors'} ${isGenerating ? 'text-white' : ''}`}>
+                            {isGenerating ? 'PROCESSING...' : 'GENERATE MASTERPIECE'}
+                        </span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
+                    {!isGenerating && <ChevronRight className={`w-4 h-4 ${disabled ? 'text-gray-500' : 'text-gray-500 group-hover:text-white transition-colors'}`} />}
                 </div>
             </button>
         </aside>
@@ -72,20 +76,6 @@ const AdjustmentSlider = ({ label, value, onChange, unit, color, glow }) => (
             />
         </div>
     </div>
-);
-
-const ActionButton = ({ icon: Icon, label, onClick }) => (
-    <button
-        onClick={onClick}
-        className="glass rounded-2xl flex flex-col items-center justify-center py-6 gap-3 group hover:border-neonBlue/30 hover:bg-white/5 transition-all duration-300 outline-none"
-    >
-        <div className="p-3 bg-white/5 rounded-xl group-hover:bg-neonBlue/10 group-hover:text-neonBlue transition-all duration-300">
-            <Icon className="w-5 h-5" />
-        </div>
-        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-gray-500 group-hover:text-white transition-colors">
-            {label}
-        </span>
-    </button>
 );
 
 export default PropertiesPanel;

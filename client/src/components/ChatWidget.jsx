@@ -70,7 +70,7 @@ const ChatWidget = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 left-6 z-50">
             {/* Chat Window */}
             <AnimatePresence>
                 {isOpen && (
@@ -79,7 +79,7 @@ const ChatWidget = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute bottom-16 right-0 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] flex flex-col glass rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
+                        className="absolute bottom-16 left-0 w-[350px] sm:w-[400px] h-[500px] max-h-[80vh] flex flex-col glass rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
                     >
                         {/* Header */}
                         <div className="bg-gradient-to-r from-neonBlue/20 to-neonPurple/20 p-4 border-b border-white/10 flex justify-between items-center backdrop-blur-md">
@@ -113,14 +113,14 @@ const ChatWidget = () => {
                                     className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
                                 >
                                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user'
-                                            ? 'bg-white/10 text-gray-300'
-                                            : 'bg-gradient-to-tr from-neonBlue to-neonPurple text-white'
+                                        ? 'bg-white/10 text-gray-300'
+                                        : 'bg-gradient-to-tr from-neonBlue to-neonPurple text-white'
                                         }`}>
                                         {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                                     </div>
                                     <div className={`max-w-[75%] p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                            ? 'bg-white/10 text-white rounded-tr-none border border-white/5'
-                                            : 'bg-gradient-to-br from-neonBlue/10 to-neonPurple/10 text-gray-200 rounded-tl-none border border-neonBlue/20'
+                                        ? 'bg-white/10 text-white rounded-tr-none border border-white/5'
+                                        : 'bg-gradient-to-br from-neonBlue/10 to-neonPurple/10 text-gray-200 rounded-tl-none border border-neonBlue/20'
                                         }`}>
                                         <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                                     </div>
@@ -174,8 +174,8 @@ const ChatWidget = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(188,19,254,0.3)] transition-all duration-300 z-50 ${isOpen
-                        ? 'bg-white/10 text-white border border-white/20'
-                        : 'bg-gradient-to-r from-neonBlue via-neonPurple to-magenta text-white hover:shadow-[0_0_30px_rgba(188,19,254,0.5)]'
+                    ? 'bg-white/10 text-white border border-white/20'
+                    : 'bg-gradient-to-r from-neonBlue via-neonPurple to-magenta text-white hover:shadow-[0_0_30px_rgba(188,19,254,0.5)]'
                     }`}
             >
                 {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
