@@ -5,7 +5,6 @@ import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff, 
 import { useAuth } from '../context/AuthContext';
 import { API_URL } from '../config';
 import DesktopStudioLayout from '../layouts/DesktopStudioLayout';
-import ToolDock from '../components/ToolDock';
 import PropertiesPanel from '../components/PropertiesPanel';
 import ImageUpload from '../components/ImageUpload';
 import ProcessingOptions from '../components/ProcessingOptions';
@@ -114,11 +113,9 @@ const Generate = () => {
     const [blur, setBlur] = React.useState(0);
     const [showOptions, setShowOptions] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
-    const [activeTool, setActiveTool] = React.useState('select');
 
     const handleFileSelect = (file) => {
         setSelectedFile(file);
-        setShowOptions(true);
         setResult(null);
     };
 
@@ -140,7 +137,6 @@ const Generate = () => {
 
             const data = await response.json();
             setResult(data);
-            setShowOptions(false);
         } catch (error) {
             console.error('Error uploading image:', error);
             alert('Processing failed. Please try again.');
@@ -152,9 +148,8 @@ const Generate = () => {
     const resetAll = () => {
         setResult(null);
         setSelectedFile(null);
-        setShowOptions(false);
         setSelectedProcessing(['grayscale']);
-        setIntensity(5);
+        setIntensity(50);
     };
 
     const handleSaveProject = async () => {
@@ -191,7 +186,6 @@ const Generate = () => {
 
     return (
         <div className="flex flex-grow overflow-hidden relative">
-            <ToolDock activeTool={activeTool} onToolSelect={setActiveTool} />
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -228,8 +222,8 @@ const Generate = () => {
                     )}
                 </div>
 
-                {/* Filters & Processing Controls (Visible when file is selected but not processed) */}
-                {showOptions && !result && (
+                {/* Filters & Processing Controls (Always visible before processing) */}
+                {!result && (
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -245,7 +239,8 @@ const Generate = () => {
                         <div className="flex justify-center">
                             <button
                                 onClick={() => handleUpload(selectedFile)}
-                                className="px-12 py-4 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-black text-sm tracking-[0.2em] shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_40px_rgba(0,243,255,0.5)] transition-all duration-300 transform hover:scale-105"
+                                disabled={!selectedFile}
+                                className={`px-12 py-4 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-black text-sm tracking-[0.2em] transition-all duration-300 transform ${!selectedFile ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_40px_rgba(0,243,255,0.5)] hover:scale-105'}`}
                             >
                                 GENERATE MASTERPIECE
                             </button>

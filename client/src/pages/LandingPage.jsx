@@ -7,42 +7,49 @@ const LandingPage = () => {
     return (
         <div className="flex flex-col items-center">
             {/* Hero Section */}
-            <section className="min-h-[80vh] flex flex-col items-center justify-center text-center max-w-5xl mx-auto py-20">
+            <section className="min-h-[85vh] flex flex-col items-center justify-center text-center max-w-6xl mx-auto py-20 px-4 relative overflow-hidden">
+                {/* Background Glows */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-neonPurple/20 rounded-full blur-[120px] pointer-events-none"></div>
+                <div className="absolute top-1/3 left-1/4 w-[400px] h-[400px] bg-neonBlue/20 rounded-full blur-[100px] pointer-events-none"></div>
+
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="relative"
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    transition={{ duration: 0.7, ease: "easeOut" }}
+                    className="relative z-10"
                 >
-                    <div className="absolute -inset-1 rounded-lg bg-gradient-to-r from-neonBlue to-neonPurple opacity-30 blur-3xl"></div>
-                    <h1 className="relative text-7xl font-bold tracking-tight mb-6">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-gray-300">
-                            Transform Ideas into
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-neonBlue/30 mb-8">
+                        <span className="w-2 h-2 rounded-full bg-neonBlue animate-pulse"></span>
+                        <span className="text-xs font-bold tracking-widest text-neonBlue uppercase">Imagica Studio v2.0 Live</span>
+                    </div>
+
+                    <h1 className="relative text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-tight">
+                        <span className="text-white drop-shadow-2xl">
+                            The Ultimate
                         </span>
                         <br />
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonBlue to-neonPurple">
-                            Digital Reality
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-neonBlue via-cyan-300 to-neonPurple drop-shadow-[0_0_15px_rgba(0,243,255,0.4)]">
+                            Image Studio
                         </span>
                     </h1>
                 </motion.div>
 
-                <p className="text-xl text-gray-400 max-w-2xl mb-10 leading-relaxed">
-                    Imagica provides professional creative tools to edit, enhance, and transform your images in seconds.
-                    Experience the precision of our lightning-fast image studio.
+                <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mb-12 leading-relaxed z-10 font-light">
+                    Harness professional-grade filters, advanced layers, and high-fidelity restoration tools. Engineered for speed, designed for creatives.
                 </p>
 
-                <div className="flex gap-6">
+                <div className="flex flex-col sm:flex-row gap-6 z-10">
                     <Link
                         to="/register"
-                        className="px-8 py-4 rounded-full bg-white text-black font-bold text-lg hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300 hover:scale-105"
+                        className="px-10 py-5 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-black text-lg tracking-widest lowercase shadow-[0_0_30px_rgba(0,243,255,0.3)] hover:shadow-[0_0_50px_rgba(0,243,255,0.5)] transition-all duration-300 hover:scale-105 hover:-translate-y-1"
                     >
-                        Start Creating Free
+                        START CREATING FREE
                     </Link>
                     <Link
                         to="/#features"
-                        className="px-8 py-4 rounded-full glass text-white font-bold text-lg hover:bg-white/10 transition-all duration-300"
+                        className="px-10 py-5 rounded-2xl glass text-white font-bold text-lg hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-white/30 tracking-widest uppercase flex items-center justify-center gap-2"
                     >
-                        Explore Features
+                        Explore Tools
                     </Link>
                 </div>
             </section>
