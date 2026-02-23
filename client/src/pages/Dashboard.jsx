@@ -287,7 +287,7 @@ const Generate = () => {
                 setBlur={setBlur}
                 onGenerate={() => handleUpload(selectedFile)}
                 isGenerating={isGenerating}
-                disabled={!selectedFile}
+                disabled={!selectedFile || !!result}
             />
         </div >
     );
