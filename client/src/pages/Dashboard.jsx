@@ -104,6 +104,7 @@ const DashboardOverview = () => {
 };
 
 const Generate = () => {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [result, setResult] = React.useState(null);
     const [selectedFile, setSelectedFile] = React.useState(null);
@@ -171,7 +172,7 @@ const Generate = () => {
             });
 
             if (response.ok) {
-                alert('Project saved! View it in "Your Posts" tab.');
+                navigate('/dashboard/posts');
             } else {
                 const data = await response.json();
                 alert(`Failed to save project: ${data.details || data.error || 'Unknown error'}`);

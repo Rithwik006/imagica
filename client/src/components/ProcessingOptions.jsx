@@ -220,27 +220,6 @@ const ProcessingOptions = ({ onSelect, selectedOption, intensity, onIntensityCha
                         </div>
                     </div>
 
-                    <style jsx>{`
-            .slider::-webkit-slider-thumb {
-              appearance: none;
-              width: 20px;
-              height: 20px;
-              background: linear-gradient(135deg, #00f3ff, #a855f7);
-              border-radius: 50%;
-              cursor: pointer;
-              box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-            }
-
-            .slider::-moz-range-thumb {
-              width: 20px;
-              height: 20px;
-              background: linear-gradient(135deg, #00f3ff, #a855f7);
-              border-radius: 50%;
-              cursor: pointer;
-              border: none;
-              box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
-            }
-          `}</style>
                 </motion.div>
             )}
         </div>
