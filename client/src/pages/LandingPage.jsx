@@ -27,8 +27,8 @@ const LandingPage = () => {
                 </motion.div>
 
                 <p className="text-xl text-gray-400 max-w-2xl mb-10 leading-relaxed">
-                    Imagica leverages advanced AI to edit, enhance, and transform your images in seconds.
-                    Experience the future of digital creativity with our lightning-fast platform.
+                    Imagica provides professional creative tools to edit, enhance, and transform your images in seconds.
+                    Experience the precision of our lightning-fast image studio.
                 </p>
 
                 <div className="flex gap-6">

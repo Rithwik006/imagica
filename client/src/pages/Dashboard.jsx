@@ -1,8 +1,15 @@
-import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff, Search } from 'lucide-react';
+import React from 'react';
+import { Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Sparkles, Zap, Layers, Share2, Shield, Smartphone, Globe, Eye, EyeOff, Search, Image as ImageIcon } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { API_URL } from '../config';
 import DesktopStudioLayout from '../layouts/DesktopStudioLayout';
 import ToolDock from '../components/ToolDock';
 import PropertiesPanel from '../components/PropertiesPanel';
-import { useNavigate, useLocation } from 'react-router-dom';
+import ImageUpload from '../components/ImageUpload';
+import ProcessingOptions from '../components/ProcessingOptions';
+import Settings from '../components/Settings';
 
 const DashboardOverview = () => {
     const { currentUser } = useAuth();
