@@ -1,9 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { LayoutGrid, Image as ImageIcon, Users, Settings as SettingsIcon, Bell, Star } from 'lucide-react';
+import { LayoutGrid, Image as ImageIcon, Users, Settings as SettingsIcon, Bell, Star, LogOut } from 'lucide-react';
 import ParticleEffect from '../components/ParticleEffect';
 
 const DesktopStudioLayout = ({ children, activeTab, onTabChange }) => {
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    };
+
     return (
         <div className="h-screen w-screen bg-studioBg flex flex-col overflow-hidden text-white font-inter relative">
             {/* Particle Overlay */}
@@ -64,8 +69,20 @@ const DesktopStudioLayout = ({ children, activeTab, onTabChange }) => {
                     <NavIcon icon={LayoutGrid} active={activeTab === 'canvas'} label="Canvas" onClick={() => onTabChange('canvas')} />
                     <NavIcon icon={ImageIcon} active={activeTab === 'assets'} label="Assets" onClick={() => onTabChange('assets')} />
                     <NavIcon icon={Users} active={activeTab === 'community'} label="Community" onClick={() => onTabChange('community')} />
-                    <div className="mt-auto">
+                    <div className="mt-auto flex flex-col gap-6 w-full items-center">
                         <NavIcon icon={SettingsIcon} active={activeTab === 'settings'} label="Settings" onClick={() => onTabChange('settings')} />
+                        <div className="w-8 h-[1px] bg-white/10 rounded-full"></div>
+                        <button
+                            onClick={handleLogout}
+                            className="flex flex-col items-center gap-1 group relative outline-none pb-4"
+                        >
+                            <div className="p-3 rounded-2xl transition-all duration-300 text-gray-500 hover:text-red-400 hover:bg-red-400/10 hover:shadow-[0_0_20px_rgba(248,113,113,0.15)]">
+                                <LogOut className="w-6 h-6 transition-transform duration-300 group-hover:-translate-x-1" />
+                            </div>
+                            <span className="text-[10px] uppercase tracking-widest font-bold transition-colors duration-300 text-gray-600 group-hover:text-red-400">
+                                Sign Out
+                            </span>
+                        </button>
                     </div>
                 </nav>
 
