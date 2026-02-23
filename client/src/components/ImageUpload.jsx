@@ -38,6 +38,7 @@ const ImageUpload = ({ onUpload }) => {
 
     const handleFile = (file) => {
         setSelectedFile(file);
+        onUpload(file); // Instantly notify dashboard
         const reader = new FileReader();
         reader.onloadend = () => {
             setPreview(reader.result);
@@ -68,10 +69,11 @@ const ImageUpload = ({ onUpload }) => {
             .then(blob => {
                 const file = new File([blob], "camera-capture.jpg", { type: "image/jpeg" });
                 setSelectedFile(file);
+                onUpload(file); // Instantly notify dashboard
             });
 
         setShowCamera(false);
-    }, [webcamRef]);
+    }, [webcamRef, onUpload]);
 
     return (
         <div className="w-full max-w-2xl mx-auto">
