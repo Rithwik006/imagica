@@ -30,19 +30,19 @@ const PropertiesPanel = ({ opacity, setOpacity, blur, setBlur, onFlip, onCrop })
                 />
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-4">
-                <ActionButton icon={RotateCcw} label="Flip" onClick={onFlip} />
-                <ActionButton icon={Crop} label="Crop" onClick={onCrop} />
-            </div>
-
             {/* Main Action Button */}
-            <button className="mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none">
+            <button
+                className="mt-auto w-full group relative overflow-hidden rounded-2xl p-[2px] focus:outline-none"
+                onClick={() => {
+                    const el = document.getElementById('generate-btn');
+                    if (el) el.click();
+                }}
+            >
                 <div className="absolute inset-0 bg-gradient-to-r from-neonBlue via-neonPurple to-neonBlue animate-bg-shift"></div>
                 <div className="relative bg-studioBg rounded-[14px] py-4 px-6 flex items-center justify-between group-hover:bg-transparent transition-colors duration-300">
                     <div className="flex items-center gap-3">
                         <Wand2 className="w-5 h-5 text-neonBlue group-hover:text-white transition-colors" />
-                        <span className="font-bold tracking-tighter text-sm group-hover:text-white transition-colors">PRO ENHANCE</span>
+                        <span className="font-bold tracking-tighter text-sm group-hover:text-white transition-colors">GENERATE MASTERPIECE</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
                 </div>

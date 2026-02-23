@@ -239,6 +239,7 @@ const Generate = () => {
 
                         <div className="flex justify-center">
                             <button
+                                id="generate-btn"
                                 onClick={() => handleUpload(selectedFile)}
                                 disabled={!selectedFile}
                                 className={`px-12 py-4 rounded-2xl bg-gradient-to-r from-neonBlue to-neonPurple text-white font-black text-sm tracking-[0.2em] transition-all duration-300 transform ${!selectedFile ? 'opacity-50 cursor-not-allowed' : 'shadow-[0_0_20px_rgba(0,243,255,0.3)] hover:shadow-[0_0_40px_rgba(0,243,255,0.5)] hover:scale-105'}`}
