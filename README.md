@@ -1,6 +1,6 @@
 # Imagica
 
-Imagica is a modern, fast, and responsive full-stack web application designed for fast, AI-powered image processing and transformation. The platform features an ultra-sleek, glassmorphic UI, real-time image filters, and an intelligent integrated AI Assistant.
+Imagica is a modern, fast, and responsive full-stack web application designed for fast, image processing and transformation. The platform features an ultra-sleek, glassmorphic UI, real-time image filters, and an intelligent integrated AI Assistant.
 
 ## Key Features
 
