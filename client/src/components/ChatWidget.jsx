@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { API_URL } from '../config';
 
-const ChatWidget = () => {
-    const [isOpen, setIsOpen] = useState(false);
+const ChatWidget = ({ isOpen, onClose }) => {
     const [messages, setMessages] = useState([
         { role: 'assistant', content: 'Hi there! I am the Imagica AI Assistant. How can I help you today?' }
     ]);
@@ -70,7 +69,7 @@ const ChatWidget = () => {
     };
 
     return (
-        <div className="fixed bottom-24 left-6 z-50">
+        <div className="fixed bottom-24 left-24 z-50">
             {/* Chat Window */}
             <AnimatePresence>
                 {isOpen && (
@@ -96,7 +95,7 @@ const ChatWidget = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={() => setIsOpen(false)}
+                                onClick={onClose}
                                 className="text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10"
                             >
                                 <X className="w-5 h-5" />
@@ -167,19 +166,6 @@ const ChatWidget = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Floating Toggle Button */}
-            <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(!isOpen)}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(188,19,254,0.3)] transition-all duration-300 z-50 ${isOpen
-                    ? 'bg-white/10 text-white border border-white/20'
-                    : 'bg-gradient-to-r from-neonBlue via-neonPurple to-magenta text-white hover:shadow-[0_0_30px_rgba(188,19,254,0.5)]'
-                    }`}
-            >
-                {isOpen ? <X className="w-6 h-6" /> : <MessageSquare className="w-6 h-6" />}
-            </motion.button>
         </div>
     );
 };

@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutGrid, Image as ImageIcon, Users, Settings as SettingsIcon, Bell, Star, LogOut } from 'lucide-react';
+import { LayoutGrid, Image as ImageIcon, Users, Settings as SettingsIcon, Bell, Star, LogOut, MessageSquare } from 'lucide-react';
 import ParticleEffect from '../components/ParticleEffect';
+import ChatWidget from '../components/ChatWidget';
 
 const DesktopStudioLayout = ({ children, activeTab, onTabChange }) => {
+    const [isChatOpen, setIsChatOpen] = useState(false);
+
     const handleLogout = () => {
         localStorage.removeItem('token');
         window.location.href = '/login';
@@ -69,6 +72,7 @@ const DesktopStudioLayout = ({ children, activeTab, onTabChange }) => {
                     <NavIcon icon={LayoutGrid} active={activeTab === 'canvas'} label="Canvas" onClick={() => onTabChange('canvas')} />
                     <NavIcon icon={ImageIcon} active={activeTab === 'assets'} label="Assets" onClick={() => onTabChange('assets')} />
                     <NavIcon icon={Users} active={activeTab === 'community'} label="Community" onClick={() => onTabChange('community')} />
+                    <NavIcon icon={MessageSquare} active={isChatOpen} label="AI Chat" onClick={() => setIsChatOpen(!isChatOpen)} />
                     <div className="mt-auto flex flex-col gap-6 w-full items-center">
                         <NavIcon icon={SettingsIcon} active={activeTab === 'settings'} label="Settings" onClick={() => onTabChange('settings')} />
                         <div className="w-8 h-[1px] bg-white/10 rounded-full"></div>
@@ -91,6 +95,8 @@ const DesktopStudioLayout = ({ children, activeTab, onTabChange }) => {
                     {children}
                 </main>
             </div>
+            
+            <ChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
         </div >
     );
 };

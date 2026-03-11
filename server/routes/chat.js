@@ -11,6 +11,8 @@ try {
 
 // ── LOCAL FAQ FALLBACK ──────────────────────────────────────────
 const FAQ = [
+    { keys: ['hi', 'hello', 'hey', 'greetings', 'howdy'], answer: 'Hello there! I am the Imagica AI Assistant. How can I help you with your image editing today?' },
+    { keys: ['who are you', 'your name', 'what are you'], answer: 'I am the Imagica AI Assistant, designed to help you navigate and use the Imagica platform!' },
     { keys: ['what is imagica', 'about imagica'], answer: 'Imagica is an online image transformation platform that allows users to upload and apply various visual styles and effects to their images easily.' },
     { keys: ['free', 'cost', 'price', 'pricing'], answer: 'Imagica provides core transformation features for free. Additional premium features may be introduced in the future.' },
     { keys: ['account', 'register', 'sign up', 'login'], answer: 'You need to create a free account to access the Studio and save your work. Registration takes less than a minute.' },
@@ -40,7 +42,12 @@ function localFallback(message) {
             return entry.answer;
         }
     }
-    return "I'm not sure about that yet. For further information, please contact rithwikgoud006@gmail.com.";
+    const defaultAnswers = [
+        "I'm not quite sure about that. For further information, please contact rithwikgoud006@gmail.com.",
+        "That's a great question, but I don't have the answer right now. Please reach out to rithwikgoud006@gmail.com for help.",
+        "I'm still learning! While I can't answer that, you can email rithwikgoud006@gmail.com for assistance."
+    ];
+    return defaultAnswers[Math.floor(Math.random() * defaultAnswers.length)];
 }
 
 // ── SYSTEM PROMPT ───────────────────────────────────────────────

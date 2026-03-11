@@ -6,7 +6,6 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Layout from './layouts/Layout';
-import ChatWidget from './components/ChatWidget';
 
 const PrivateRoute = ({ children }) => {
   const { currentUser } = useAuth();
@@ -28,7 +27,6 @@ function App() {
               </PrivateRoute>
             } />
           </Routes>
-          <ChatWidget />
         </Router>
       </AuthProvider>
     </ThemeProvider>

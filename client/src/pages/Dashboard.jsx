@@ -108,7 +108,7 @@ const Generate = () => {
     const [searchParams] = useSearchParams();
     const [result, setResult] = React.useState(null);
     const [selectedFile, setSelectedFile] = React.useState(null);
-    const [selectedProcessing, setSelectedProcessing] = React.useState(['grayscale']);
+    const [selectedProcessing, setSelectedProcessing] = React.useState([]);
     const [intensity, setIntensity] = React.useState(50); // Scale to 100 for proper slider feel
     const [opacity, setOpacity] = React.useState(100);
     const [blur, setBlur] = React.useState(0);
@@ -153,7 +153,7 @@ const Generate = () => {
     const resetAll = () => {
         setResult(null);
         setSelectedFile(null);
-        setSelectedProcessing(['grayscale']);
+        setSelectedProcessing([]);
         setIntensity(50);
     };
 
